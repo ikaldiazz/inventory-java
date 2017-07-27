@@ -363,7 +363,13 @@ public class LoginF extends javax.swing.JFrame {
 //        Image newimg = img.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
 //        icon = new ImageIcon(newimg);
 
-        Icon icon = setIcon("./src/icon/close-icon.png", 50);
+
+        //close.setIcon(iconic.getIcon("./src/icon/windows/close16.png", 16));
+        //Icon icon = setIcon("./src/icon/close-icon.png", 50);
+        
+        Icon icon = iconic.getIcon("./src/icon/close-icon.png", 50);
+        
+        
 
         int selectedOption = JOptionPane.showConfirmDialog(null,
                 "Apakah anda ingin membatalkan login?",
@@ -415,9 +421,6 @@ public class LoginF extends javax.swing.JFrame {
     }//GEN-LAST:event_loginButtonActionPerformed
 
     private void closeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseEntered
-//        Icon icon = getIcon("./src/icon/windows/close16.png", 16);
-//        close.getIcon(icon);
-        
         close.setIcon(iconic.getIcon("./src/icon/windows/close16.png", 16));
     }//GEN-LAST:event_closeMouseEntered
 

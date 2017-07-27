@@ -15,9 +15,9 @@ import javax.swing.JButton;
  * @author ALPABETAPINTAR
  */
 public class Iconic {
-    ImageIcon imgicon; 
-    Image img, newimg;
-    JButton button = new JButton();
+    private ImageIcon imgicon; 
+    private Image img, newimg;
+    private JButton button = new JButton();
     
     public Iconic(){
         
