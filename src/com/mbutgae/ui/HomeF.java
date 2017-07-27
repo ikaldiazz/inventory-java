@@ -98,6 +98,8 @@ public class HomeF extends javax.swing.JFrame {
         leftPanel = new javax.swing.JPanel();
         PanelStatus = new javax.swing.JPanel();
         welcomelabel = new javax.swing.JLabel();
+        lbl_status = new javax.swing.JLabel();
+        btn_start = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(0, 51, 255));
@@ -258,6 +260,17 @@ public class HomeF extends javax.swing.JFrame {
             }
         });
 
+        lbl_status.setFont(new java.awt.Font("Segoe UI Light", 1, 18)); // NOI18N
+        lbl_status.setForeground(new java.awt.Color(255, 255, 255));
+        lbl_status.setText("STATUS");
+        lbl_status.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lbl_statusMouseClicked(evt);
+            }
+        });
+
+        btn_start.setText("jButton1");
+
         javax.swing.GroupLayout PanelStatusLayout = new javax.swing.GroupLayout(PanelStatus);
         PanelStatus.setLayout(PanelStatusLayout);
         PanelStatusLayout.setHorizontalGroup(
@@ -265,13 +278,21 @@ public class HomeF extends javax.swing.JFrame {
             .addGroup(PanelStatusLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(welcomelabel)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btn_start)
+                .addGap(18, 18, 18)
+                .addComponent(lbl_status)
+                .addContainerGap())
         );
         PanelStatusLayout.setVerticalGroup(
             PanelStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelStatusLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(welcomelabel)
+                .addGroup(PanelStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(welcomelabel)
+                        .addComponent(lbl_status))
+                    .addComponent(btn_start))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -338,6 +359,10 @@ public class HomeF extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_tanggalMouseClicked
 
+    private void lbl_statusMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_statusMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lbl_statusMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -376,11 +401,13 @@ public class HomeF extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelBottom;
     private javax.swing.JPanel PanelStatus;
+    public static javax.swing.JButton btn_start;
     private javax.swing.JLabel close;
     private javax.swing.JDesktopPane desktop;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JLabel jam;
+    public static javax.swing.JLabel lbl_status;
     private javax.swing.JPanel leftPanel;
     private javax.swing.JLabel maximize;
     private javax.swing.JLabel minimize;

@@ -4,7 +4,7 @@
  */
 package com.mbutgae.db;
 
-//import form.HomeFF;
+import com.mbutgae.ui.HomeF;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -29,7 +29,7 @@ public class Server {
 
         try {
             System.out.println("Loading n Waitting");
-            //HomeF.btn_start.setText("...");
+            HomeF.btn_start.setText("...");
             server = new ServerSocket(Parameter.PORT);
             signal = true;
         } catch (Exception ex) {
@@ -38,9 +38,9 @@ public class Server {
 
         if (signal == true) {
             new terimaKoneksi("RunServer");
-            //HomeF.btn_start.setText("STOP");
-            //HomeF.lbl_status.setText("ON");
-            //HomeF.lbl_status.setBackground(Color.BLUE);
+            HomeF.btn_start.setText("STOP");
+            HomeF.lbl_status.setText("ON");
+            HomeF.lbl_status.setBackground(Color.BLUE);
         }
     }
 
@@ -59,8 +59,8 @@ public class Server {
                     try {
                         client = server.accept();
                         System.out.println("Access Client.....");
-                        //HomeF.lbl_status.setText("CON..");
-                        //HomeF.lbl_status.setBackground(Color.GREEN);
+                        HomeF.lbl_status.setText("CON..");
+                        HomeF.lbl_status.setBackground(Color.GREEN);
                     } catch (Exception ex) {
                         break;
                     }
@@ -74,9 +74,9 @@ public class Server {
     public void serverOff() {
         try {
             server.close();
-            //HomeF.btn_start.setText("START");
-            //HomeF.lbl_status.setText("OFF");
-            //HomeF.lbl_status.setBackground(Color.RED);
+            HomeF.btn_start.setText("START");
+            HomeF.lbl_status.setText("OFF");
+            HomeF.lbl_status.setBackground(Color.RED);
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
