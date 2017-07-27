@@ -31,14 +31,19 @@ public class DatabaseConn {
         this.Port = Port;
     }
 
-    public Connection koneksiDatabase() {
+    public Connection koneksiDatabase(){
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection(url, username, password);
-        } catch (Exception e) {
-            
-        }
+        }catch (NullPointerException |SQLException | ClassNotFoundException e) {
+            //System.err.println(""+e.getMessage()+"\n\n");
+            //getRootCause(e).getMessage());
+            System.out.println(""+getRootCause(e).getMessage());
+            //e.printStackTrace();
+            //
+        } 
+        
         return connection;
     }
 
@@ -47,6 +52,8 @@ public class DatabaseConn {
         try {
             connection.close();
         } catch (Exception e) {
+            System.err.println(""+e.getMessage()+"\n\n");
+            e.printStackTrace();
         }
         return connection;
     }
@@ -59,6 +66,9 @@ public class DatabaseConn {
             resultSet = statement.executeQuery(sql);
             System.out.println(sql);
         } catch (SQLException ex) {
+            ex.toString();
+            System.err.println(""+ex.getMessage()+"\n\n");
+            ex.printStackTrace();
         }
         return resultSet;
     }
@@ -73,6 +83,8 @@ public class DatabaseConn {
 
         } catch (SQLException ex) {
             result = ex.toString();
+            System.err.println(""+ex.getMessage()+"\n\n");
+            ex.printStackTrace();
         }
         return result;
 
@@ -214,4 +226,12 @@ public class DatabaseConn {
         return this.eksekusiUpdate(SQL);
 
     }
+    
+    
+    public static Throwable getRootCause(Throwable throwable) {
+    if (throwable.getCause() != null)
+        return getRootCause(throwable.getCause());
+
+    return throwable;
+}
 }

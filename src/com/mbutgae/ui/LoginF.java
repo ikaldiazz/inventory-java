@@ -98,7 +98,7 @@ public class LoginF extends javax.swing.JFrame {
                     //              Home h = new Home();
                     //              h.setVisible(true);
                     //              this.dispose();
-                    System.out.println("God_Mode");
+                    System.out.println("GOD_Mode");
                     System.out.println("Log");
 
                     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -449,10 +449,11 @@ public class LoginF extends javax.swing.JFrame {
     private void usernameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_usernameKeyPressed
         int key = evt.getKeyCode();
         if (key == KeyEvent.VK_ENTER) {
-            if (new String(pass.getPassword()).equals("")) {
-                JOptionPane.showMessageDialog(this, "Anda belum memasukkan Password!");                
-                pass.requestFocus();
-            }
+//            if (new String(pass.getPassword()).equals("")) {
+//                JOptionPane.showMessageDialog(this, "Anda belum memasukkan Password!");                
+//                pass.requestFocus();
+//            }
+            pass.requestFocus();
 
         }//No
     }//GEN-LAST:event_usernameKeyPressed
