@@ -1,6 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To iconic this license header, choose License Headers in Project Properties.
+ * To iconic this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 package com.mbutgae.ui;
@@ -25,6 +25,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import com.mbutgae.misc.Clock;
+import com.mbutgae.misc.Iconic;
 import com.mbutgae.obj.User;
 
 /**
@@ -36,6 +37,7 @@ public class LoginF extends javax.swing.JFrame {
     ResultSet rs;
     DatabaseConn db;
     String u, p, r;// username, password, rights variable 
+    Iconic iconic = new Iconic();
 
     /**
      * Creates new form LoginF
@@ -413,8 +415,10 @@ public class LoginF extends javax.swing.JFrame {
     }//GEN-LAST:event_loginButtonActionPerformed
 
     private void closeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseEntered
-        Icon icon = setIcon("./src/icon/windows/close16.png", 16);
-        close.setIcon(icon);
+//        Icon icon = getIcon("./src/icon/windows/close16.png", 16);
+//        close.getIcon(icon);
+        
+        close.setIcon(iconic.getIcon("./src/icon/windows/close16.png", 16));
     }//GEN-LAST:event_closeMouseEntered
 
     private void closeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseExited
