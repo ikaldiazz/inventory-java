@@ -146,6 +146,27 @@ public class DatabaseConn {
         return this.eksekusiQuery(SQL);
 
     }
+    //Overload fungsi untuk eksekusi query select dengan dengan INNER JOIN
+    public ResultSet innerJoin(String idTabel1, String idTabel2, String namaTabel1, String namaTabel2) {
+        koneksiDatabase();
+        SQL = "SELECT * ";
+        SQL += " FROM " + namaTabel1;
+        SQL += " INNER JOIN "+namaTabel2+" ON ";
+        SQL += namaTabel1+"."+idTabel1+"="+namaTabel2+"."+idTabel2;
+        return this.eksekusiQuery(SQL);
+
+    } 
+    //Overload fungsi untuk eksekusi query select dengan dengan INNER JOIN
+    public ResultSet innerJoin(String[] primarykey, String namaTabel1, String namaTabel2) {
+
+        koneksiDatabase();
+        SQL = "SELECT * ";
+        SQL += " FROM " + namaTabel1;
+        SQL += " INNER JOIN "+namaTabel2+" ON ";
+        SQL += namaTabel1+"."+primarykey[0]+"="+namaTabel2+"."+primarykey[1];
+        return this.eksekusiQuery(SQL);
+
+    }
 
     public String queryInsert(String namaTabel, String[] isiTabel) {
 

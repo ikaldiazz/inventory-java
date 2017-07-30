@@ -80,10 +80,10 @@ public class LoginF extends javax.swing.JFrame {
         if (username.getText().equals("") || new String(pass.getPassword()).equals("")) {
             JOptionPane.showMessageDialog(this, "Isikan Data dengan Benar!");
         } else {
-            rs = db.querySelectAll("user", "username='" + username.getText() + "' and pass='" + new String(pass.getPassword()) + "'");
+            rs = db.querySelectAll("user", "user_id='" + username.getText() + "' and pass='" + new String(pass.getPassword()) + "'");
             try {
                 while (rs.next()) {
-                    u = rs.getString("username");
+                    u = rs.getString("user_id");
                     p = rs.getString("pass");
                     r = rs.getString("rights");
                 }
@@ -105,9 +105,9 @@ public class LoginF extends javax.swing.JFrame {
                     Date date = new Date();
                     System.out.println(dateFormat.format(date));
 
-                    String[] kolom = {"user", "date"};
+                    String[] kolom = {"user_id", "date"};
                     String[] isi = {username.getText(), dateFormat.format(date)};
-                    System.out.println(db.queryInsert("log", kolom, isi));
+                    System.out.println(db.queryInsert("user_log", kolom, isi));
 
                     user = new User(u, p, r);
                     System.out.println("Succsessfully Log...");
