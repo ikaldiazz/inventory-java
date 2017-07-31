@@ -105,8 +105,8 @@ public class LoginF extends javax.swing.JFrame {
                     Date date = new Date();
                     System.out.println(dateFormat.format(date));
 
-                    String[] kolom = {"user_id", "date"};
-                    String[] isi = {username.getText(), dateFormat.format(date)};
+                    String[] kolom = {"user_id", "date","operation"};
+                    String[] isi = {username.getText(), dateFormat.format(date), "1"};
                     System.out.println(db.queryInsert("user_log", kolom, isi));
 
                     user = new User(u, p, r);

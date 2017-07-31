@@ -5,6 +5,8 @@
  */
 package com.mbutgae.ui;
 
+import com.mbutgae.db.DatabaseConn;
+import com.mbutgae.db.Parameter;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Image;
@@ -13,6 +15,10 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import com.mbutgae.obj.User;
+import java.sql.ResultSet;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  *
@@ -21,6 +27,8 @@ import com.mbutgae.obj.User;
 public class HomeF extends javax.swing.JFrame {
 
     User u = new User();
+    ResultSet rs;
+    DatabaseConn db;
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     int maxHeight, maxWidth;
     Dimension windowsMaxState;
@@ -39,7 +47,7 @@ public class HomeF extends javax.swing.JFrame {
     }
 
     public HomeF(User us) {
-
+        db = new DatabaseConn(new Parameter().HOST_DB, new Parameter().USERNAME_DB, new Parameter().PASSWORD_DB, new Parameter().IPHOST, new Parameter().PORT);
         initComponents();
 
         ImageIcon icon = new ImageIcon("./src/icon/maximize.png");
@@ -333,6 +341,13 @@ public class HomeF extends javax.swing.JFrame {
                 0,
                 icon);
         if (selectedOption == JOptionPane.YES_OPTION) {
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                    Date date = new Date();
+                    System.out.println(dateFormat.format(date));
+                    
+            String[] kolom = {"user_id", "date","operation"};
+                    String[] isi = {u.getUsername(), dateFormat.format(date), "1"};
+                    System.out.println(db.queryInsert("user_log", kolom, isi));
             System.exit(0);
         }
     }//GEN-LAST:event_closeMouseClicked
