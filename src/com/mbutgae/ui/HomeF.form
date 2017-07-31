@@ -132,9 +132,9 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jam" min="-2" max="-2" attributes="0"/>
+                  <Component id="jamlbl" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
-                  <Component id="tanggal" min="-2" max="-2" attributes="0"/>
+                  <Component id="tanggallbl" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -144,8 +144,8 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jam" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="tanggal" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jamlbl" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="tanggallbl" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -153,7 +153,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="jam">
+        <Component class="javax.swing.JLabel" name="jamlbl">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI Light" size="18" style="1"/>
@@ -164,10 +164,10 @@
             <Property name="text" type="java.lang.String" value="TIME"/>
           </Properties>
           <Events>
-            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jamMouseClicked"/>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jamlblMouseClicked"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JLabel" name="tanggal">
+        <Component class="javax.swing.JLabel" name="tanggallbl">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI Light" size="18" style="1"/>
@@ -178,7 +178,7 @@
             <Property name="text" type="java.lang.String" value="DAY"/>
           </Properties>
           <Events>
-            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tanggalMouseClicked"/>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tanggallblMouseClicked"/>
           </Events>
         </Component>
       </SubComponents>

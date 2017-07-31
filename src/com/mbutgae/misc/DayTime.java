@@ -12,16 +12,16 @@ package com.mbutgae.misc;
 import java.util.Calendar;
 import javax.swing.JLabel;
 
-public class Clock implements Runnable {
+public class DayTime implements Runnable {
 
     JLabel jb;
 
 //Constructor takes the clock JLabel
-    public Clock(JLabel jb) {
+    public DayTime(JLabel jb) {
         this.jb = jb;
     }
     
-    public Clock(JLabel jb, int format) {
+    public DayTime(JLabel jb, int format) {
         this.jb = jb;
     }
 
@@ -53,7 +53,7 @@ public class Clock implements Runnable {
         int month = now.get(Calendar.MONTH);
         int year = now.get(Calendar.YEAR);
         
-        String time = dayOfMonthStr +"-"+month+"-"+year+ " | "+zero(hrs) + ":" + zero(min) + ":" + zero(sec);
+        String time = dayOfMonthStr +"-"+month+"-"+year;
         //String time = zero(hrs) + ":" + zero(min) + ":" + zero(sec);
         return time;
     }

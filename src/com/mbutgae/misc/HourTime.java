@@ -12,16 +12,16 @@ package com.mbutgae.misc;
 import java.util.Calendar;
 import javax.swing.JLabel;
 
-public class Clock implements Runnable {
+public class HourTime implements Runnable {
 
     JLabel jb;
 
 //Constructor takes the clock JLabel
-    public Clock(JLabel jb) {
+    public HourTime(JLabel jb) {
         this.jb = jb;
     }
     
-    public Clock(JLabel jb, int format) {
+    public HourTime(JLabel jb, int format) {
         this.jb = jb;
     }
 
@@ -44,17 +44,7 @@ public class Clock implements Runnable {
         int min = now.get(Calendar.MINUTE);
         int sec = now.get(Calendar.SECOND);
         
-        //int dayOfWeek = now.get(Calendar.DAY_OF_WEEK);
-        //String dayOfWeekStr = String.valueOf(dayOfWeek);
-        
-        int dayOfMonth = now.get(Calendar.DAY_OF_MONTH);
-        String dayOfMonthStr = String.valueOf(dayOfMonth);
-        
-        int month = now.get(Calendar.MONTH);
-        int year = now.get(Calendar.YEAR);
-        
-        String time = dayOfMonthStr +"-"+month+"-"+year+ " | "+zero(hrs) + ":" + zero(min) + ":" + zero(sec);
-        //String time = zero(hrs) + ":" + zero(min) + ":" + zero(sec);
+        String time = zero(hrs) + ":" + zero(min) + ":" + zero(sec);        
         return time;
     }
 

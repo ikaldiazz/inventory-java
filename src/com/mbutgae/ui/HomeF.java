@@ -7,6 +7,8 @@ package com.mbutgae.ui;
 
 import com.mbutgae.db.DatabaseConn;
 import com.mbutgae.db.Parameter;
+import com.mbutgae.misc.Clock;
+import com.mbutgae.misc.HourTime;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Image;
@@ -37,10 +39,17 @@ public class HomeF extends javax.swing.JFrame {
      * Creates new form HomeF
      */
     public HomeF() {
+        db = new DatabaseConn(new Parameter().HOST_DB, new Parameter().USERNAME_DB, new Parameter().PASSWORD_DB, new Parameter().IPHOST, new Parameter().PORT);
         initComponents();
-        u.setUsername("User");
-        u.setRights("1");
+        u.setUsername("manager");
+        u.setRights("2");
         welcomelabel.setText("Selamat Datang " + u.getUsername());
+        
+        HourTime c1 = new HourTime(jamlbl);
+        Thread t1 = new Thread(c1);
+        t1.start();
+        hari();
+        
         setExtendedState(HomeF.MAXIMIZED_BOTH);
         windowsMaxState = this.screen();
 
@@ -62,13 +71,18 @@ public class HomeF extends javax.swing.JFrame {
 
         us.showStatus();
 
-        jam.setText("Selamat Datang " + u.getUsername());
-        setExtendedState(HomeF.MAXIMIZED_BOTH);
+        welcomelabel.setText("Selamat Datang " + u.getUsername());
+        HourTime c1 = new HourTime(jamlbl);
+        Thread t1 = new Thread(c1);
+        t1.start();
+        hari();
         
+        setExtendedState(HomeF.MAXIMIZED_BOTH);
+
     }
 
     public final Dimension screen() {
-        Dimension a = new Dimension(0,0);
+        Dimension a = new Dimension(0, 0);
         a.height = (int) screenSize.getWidth();
         a.width = (int) screenSize.getHeight();
         System.out.println("Width : " + a.height);
@@ -83,6 +97,8 @@ public class HomeF extends javax.swing.JFrame {
         icon = new ImageIcon(newimg);
         return icon;
     }
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -98,8 +114,8 @@ public class HomeF extends javax.swing.JFrame {
         close = new javax.swing.JLabel();
         maximize = new javax.swing.JLabel();
         PanelBottom = new javax.swing.JPanel();
-        jam = new javax.swing.JLabel();
-        tanggal = new javax.swing.JLabel();
+        jamlbl = new javax.swing.JLabel();
+        tanggallbl = new javax.swing.JLabel();
         jSplitPane1 = new javax.swing.JSplitPane();
         rightPanel = new javax.swing.JPanel();
         desktop = new javax.swing.JDesktopPane();
@@ -165,21 +181,21 @@ public class HomeF extends javax.swing.JFrame {
 
         PanelBottom.setBackground(new java.awt.Color(0, 102, 255));
 
-        jam.setFont(new java.awt.Font("Segoe UI Light", 1, 18)); // NOI18N
-        jam.setForeground(new java.awt.Color(255, 255, 255));
-        jam.setText("TIME");
-        jam.addMouseListener(new java.awt.event.MouseAdapter() {
+        jamlbl.setFont(new java.awt.Font("Segoe UI Light", 1, 18)); // NOI18N
+        jamlbl.setForeground(new java.awt.Color(255, 255, 255));
+        jamlbl.setText("TIME");
+        jamlbl.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jamMouseClicked(evt);
+                jamlblMouseClicked(evt);
             }
         });
 
-        tanggal.setFont(new java.awt.Font("Segoe UI Light", 1, 18)); // NOI18N
-        tanggal.setForeground(new java.awt.Color(255, 255, 255));
-        tanggal.setText("DAY");
-        tanggal.addMouseListener(new java.awt.event.MouseAdapter() {
+        tanggallbl.setFont(new java.awt.Font("Segoe UI Light", 1, 18)); // NOI18N
+        tanggallbl.setForeground(new java.awt.Color(255, 255, 255));
+        tanggallbl.setText("DAY");
+        tanggallbl.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tanggalMouseClicked(evt);
+                tanggallblMouseClicked(evt);
             }
         });
 
@@ -189,9 +205,9 @@ public class HomeF extends javax.swing.JFrame {
             PanelBottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelBottomLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jam)
+                .addComponent(jamlbl)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(tanggal)
+                .addComponent(tanggallbl)
                 .addContainerGap())
         );
         PanelBottomLayout.setVerticalGroup(
@@ -199,8 +215,8 @@ public class HomeF extends javax.swing.JFrame {
             .addGroup(PanelBottomLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(PanelBottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jam)
-                    .addComponent(tanggal))
+                    .addComponent(jamlbl)
+                    .addComponent(tanggallbl))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -334,6 +350,7 @@ public class HomeF extends javax.swing.JFrame {
 
     private void closeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseClicked
         Icon icon = setIcon("./src/icon/close-icon.png", 50);
+        u.showStatus();
         int selectedOption = JOptionPane.showConfirmDialog(null,
                 "Apakah anda ingin Keluar dari Program?",
                 "Exit Program",
@@ -342,12 +359,12 @@ public class HomeF extends javax.swing.JFrame {
                 icon);
         if (selectedOption == JOptionPane.YES_OPTION) {
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                    Date date = new Date();
-                    System.out.println(dateFormat.format(date));
-                    
-            String[] kolom = {"user_id", "date","operation"};
-                    String[] isi = {u.getUsername(), dateFormat.format(date), "1"};
-                    System.out.println(db.queryInsert("user_log", kolom, isi));
+            Date date = new Date();
+            System.out.println(dateFormat.format(date));
+
+            String[] kolom = {"user_id", "date", "operation"};
+            String[] isi = {u.getUsername(), dateFormat.format(date), "0"};
+            System.out.println(db.queryInsert("user_log", kolom, isi));
             System.exit(0);
         }
     }//GEN-LAST:event_closeMouseClicked
@@ -362,20 +379,20 @@ public class HomeF extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_maximizeMouseClicked
 
-    private void jamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jamMouseClicked
+    private void jamlblMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jamlblMouseClicked
         desktop.removeAll();
         LoginF log = new LoginF();
         desktop.add(log);
         log.setVisible(true);
-    }//GEN-LAST:event_jamMouseClicked
+    }//GEN-LAST:event_jamlblMouseClicked
 
     private void welcomelabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_welcomelabelMouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_welcomelabelMouseClicked
 
-    private void tanggalMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tanggalMouseClicked
+    private void tanggallblMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tanggallblMouseClicked
         // TODO add your handling code here:
-    }//GEN-LAST:event_tanggalMouseClicked
+    }//GEN-LAST:event_tanggallblMouseClicked
 
     private void lbl_statusMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_statusMouseClicked
         // TODO add your handling code here:
@@ -415,6 +432,13 @@ public class HomeF extends javax.swing.JFrame {
             }
         });
     }
+    public void hari() {
+        Date skrg = new Date();
+        SimpleDateFormat tgl = new SimpleDateFormat("EEEE, dd MMM yyyy");
+//        SimpleDateFormat hari = new SimpleDateFormat("HH:mm");
+//        jamlbl.setText(hari.format(skrg));
+        tanggallbl.setText(tgl.format(skrg));
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelBottom;
@@ -424,13 +448,13 @@ public class HomeF extends javax.swing.JFrame {
     private javax.swing.JDesktopPane desktop;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JLabel jam;
+    private javax.swing.JLabel jamlbl;
     public static javax.swing.JLabel lbl_status;
     private javax.swing.JPanel leftPanel;
     private javax.swing.JLabel maximize;
     private javax.swing.JLabel minimize;
     private javax.swing.JPanel rightPanel;
-    private javax.swing.JLabel tanggal;
+    private javax.swing.JLabel tanggallbl;
     private javax.swing.JLabel welcomelabel;
     // End of variables declaration//GEN-END:variables
 }

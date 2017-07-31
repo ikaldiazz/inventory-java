@@ -55,9 +55,10 @@ public class User {
    
     public void showStatus() {
         //return super.toString(); //To change body of generated methods, choose Tools | Templates.
-        
+        System.out.println("====STATUS USER====");
         System.out.println("User : "+this.username);
         System.out.println("Rights : "+this.rights);
+        System.out.println("===================");
     }
 
     
