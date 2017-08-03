@@ -27,6 +27,10 @@ import javax.swing.JOptionPane;
 import com.mbutgae.misc.Clock;
 import com.mbutgae.misc.Iconic;
 import com.mbutgae.obj.User;
+import net.sf.jcarrierpigeon.WindowPosition;
+import net.sf.jtelegraph.Telegraph;
+import net.sf.jtelegraph.TelegraphQueue;
+import net.sf.jtelegraph.TelegraphType;
 
 /**
  *
@@ -75,10 +79,17 @@ public class LoginF extends javax.swing.JFrame {
         return icon;
     }
 
+    public void notifPush(String title, String message, TelegraphType type,int duration) {
+        Telegraph tele = new Telegraph(title, message, type, WindowPosition.BOTTOMLEFT, duration);
+        TelegraphQueue q = new TelegraphQueue();
+        q.add(tele);
+    }
+
     public void loginNow() {
         User user;
         if (username.getText().equals("") || new String(pass.getPassword()).equals("")) {
-            JOptionPane.showMessageDialog(this, "Isikan Data dengan Benar!");
+            //JOptionPane.showMessageDialog(this, "Isikan Data dengan Benar!");
+            notifPush("Gagal", "Masukkan data dengan benar", TelegraphType.NOTIFICATION_WARNING, 3000);
         } else {
             rs = db.querySelectAll("user", "user_id='" + username.getText() + "' and pass='" + new String(pass.getPassword()) + "'");
             try {
@@ -92,7 +103,8 @@ public class LoginF extends javax.swing.JFrame {
             }
 
             if (u == null && p == null) {
-                JOptionPane.showMessageDialog(this, "Username dan Password Salah!");
+                //JOptionPane.showMessageDialog(this, "Username dan Password Salah!");
+                notifPush("Gagal", "Username dan Password Salah!", TelegraphType.NOTIFICATION_ERROR, 3000);
             } else {
                 if (r.equals("1")) {
                     //              Home h = new Home();
@@ -105,13 +117,15 @@ public class LoginF extends javax.swing.JFrame {
                     Date date = new Date();
                     System.out.println(dateFormat.format(date));
 
-                    String[] kolom = {"user_id", "date","operation"};
+                    String[] kolom = {"user_id", "date", "operation"};
                     String[] isi = {username.getText(), dateFormat.format(date), "1"};
                     System.out.println(db.queryInsert("user_log", kolom, isi));
 
                     user = new User(u, p, r);
                     System.out.println("Succsessfully Log...");
                     System.out.println("");
+                    
+                    notifPush("Login Sukses","Selamat Datang "+user.getUsername(), TelegraphType.NOTIFICATION_DONE, 4000);
                     //JOptionPane.showMessageDialog(this, "Wrong Username and Password");
                     this.dispose();
                     HomeF h = new HomeF(user);
@@ -363,13 +377,9 @@ public class LoginF extends javax.swing.JFrame {
 //        Image newimg = img.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
 //        icon = new ImageIcon(newimg);
 
-
         //close.setIcon(iconic.getIcon("./src/icon/windows/close16.png", 16));
         //Icon icon = setIcon("./src/icon/close-icon.png", 50);
-        
         Icon icon = iconic.getIcon("./src/icon/close-icon.png", 50);
-        
-        
 
         int selectedOption = JOptionPane.showConfirmDialog(null,
                 "Apakah anda ingin membatalkan login?",
