@@ -57,19 +57,14 @@ public class LoginF extends javax.swing.JFrame {
 
     }
 
-    public Color getDefButton() {
-        Color defButton = InputPanel.getBackground();
-        return defButton;
-    }
-
-    public static void changeFont(Component component, Font font) {
-        component.setFont(font);
-        if (component instanceof Container) {
-            for (Component child : ((Container) component).getComponents()) {
-                changeFont(child, font);
-            }
-        }
-    }
+//    public static void changeFont(Component component, Font font) {
+//        component.setFont(font);
+//        if (component instanceof Container) {
+//            for (Component child : ((Container) component).getComponents()) {
+//                changeFont(child, font);
+//            }
+//        }
+//    }
 
     public Icon setIcon(String path, int size) {
         ImageIcon icon = new ImageIcon(path);
@@ -85,7 +80,7 @@ public class LoginF extends javax.swing.JFrame {
         q.add(tele);
     }
 
-    public void loginNow() {
+    public void loginProcess() {
         User user;
         if (username.getText().equals("") || new String(pass.getPassword()).equals("")) {
             //JOptionPane.showMessageDialog(this, "Isikan Data dengan Benar!");
@@ -125,7 +120,7 @@ public class LoginF extends javax.swing.JFrame {
                     System.out.println("Succsessfully Log...");
                     System.out.println("");
                     
-                    notifPush("Login Sukses","Selamat Datang "+user.getUsername(), TelegraphType.NOTIFICATION_DONE, 4000);
+                    notifPush("Login Sukses","Selamat Datang "+user.getUsername(), TelegraphType.NOTIFICATION_DONE, 3000);
                     //JOptionPane.showMessageDialog(this, "Wrong Username and Password");
                     this.dispose();
                     HomeF h = new HomeF(user);
@@ -427,7 +422,7 @@ public class LoginF extends javax.swing.JFrame {
     }//GEN-LAST:event_iconLabelMouseClicked
 
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
-        loginNow();
+        loginProcess();
     }//GEN-LAST:event_loginButtonActionPerformed
 
     private void closeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseEntered
@@ -452,7 +447,7 @@ public class LoginF extends javax.swing.JFrame {
     private void passKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passKeyPressed
         int key = evt.getKeyCode();
         if (key == KeyEvent.VK_ENTER) {
-            loginNow();
+            loginProcess();
         }//No
     }//GEN-LAST:event_passKeyPressed
 
