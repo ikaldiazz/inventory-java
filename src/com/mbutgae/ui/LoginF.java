@@ -8,9 +8,6 @@ package com.mbutgae.ui;
 import com.mbutgae.db.DatabaseConn;
 import com.mbutgae.db.Parameter;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
@@ -115,6 +112,7 @@ public class LoginF extends javax.swing.JFrame {
                     String[] kolom = {"user_id", "date", "operation"};
                     String[] isi = {username.getText(), dateFormat.format(date), "1"};
                     System.out.println(db.queryInsert("user_log", kolom, isi));
+                    db.closeKoneksi();
 
                     user = new User(u, p, r);
                     System.out.println("Succsessfully Log...");
@@ -135,6 +133,7 @@ public class LoginF extends javax.swing.JFrame {
                     String[] kolom = {"user_id", "date", "operation"};
                     String[] isi = {username.getText(), dateFormat.format(date), "1"};
                     System.out.println(db.queryInsert("user_log", kolom, isi));
+                    db.closeKoneksi();
 
                     user = new User(u, p, r);
                     System.out.println("Succsessfully Log...");

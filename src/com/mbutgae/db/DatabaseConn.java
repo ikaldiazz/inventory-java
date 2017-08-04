@@ -43,6 +43,7 @@ public class DatabaseConn {
             //e.printStackTrace();
             //
         }
+        System.out.println("Connection Open");
 
         return connection;
     }

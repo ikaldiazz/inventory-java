@@ -7,7 +7,6 @@ package com.mbutgae.ui;
 
 import com.mbutgae.db.DatabaseConn;
 import com.mbutgae.db.Parameter;
-import com.mbutgae.misc.Clock;
 import com.mbutgae.misc.DayTime;
 import com.mbutgae.misc.HourTime;
 import com.mbutgae.misc.Word;
