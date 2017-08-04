@@ -4,7 +4,7 @@
  */
 package com.mbutgae.db;
 
-
+import java.io.IOException;
 import java.net.Socket;
 import java.sql.*;
 import java.util.logging.Level;
@@ -31,19 +31,19 @@ public class DatabaseConn {
         this.Port = Port;
     }
 
-    public Connection koneksiDatabase(){
+    public Connection koneksiDatabase() {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection(url, username, password);
-        }catch (NullPointerException |SQLException | ClassNotFoundException e) {
+        } catch (NullPointerException | SQLException | ClassNotFoundException e) {
             //System.err.println(""+e.getMessage()+"\n\n");
             //getRootCause(e).getMessage());
-            System.out.println(""+getRootCause(e).getMessage());
+            System.out.println("" + getRootCause(e).getMessage());
             //e.printStackTrace();
             //
-        } 
-        
+        }
+
         return connection;
     }
 
@@ -52,7 +52,7 @@ public class DatabaseConn {
         try {
             connection.close();
         } catch (Exception e) {
-            System.err.println(""+e.getMessage()+"\n\n");
+            System.err.println("" + e.getMessage() + "\n\n");
             e.printStackTrace();
         }
         return connection;
@@ -67,7 +67,7 @@ public class DatabaseConn {
             System.out.println(sql);
         } catch (SQLException ex) {
             ex.toString();
-            System.err.println(""+ex.getMessage()+"\n\n");
+            System.err.println("" + ex.getMessage() + "\n\n");
             ex.printStackTrace();
         }
         return resultSet;
@@ -83,7 +83,7 @@ public class DatabaseConn {
 
         } catch (SQLException ex) {
             result = ex.toString();
-            System.err.println(""+ex.getMessage()+"\n\n");
+            System.err.println("" + ex.getMessage() + "\n\n");
             ex.printStackTrace();
         }
         return result;
@@ -146,24 +146,26 @@ public class DatabaseConn {
         return this.eksekusiQuery(SQL);
 
     }
+
     //Overload fungsi untuk eksekusi query select dengan dengan INNER JOIN
     public ResultSet innerJoin(String idTabel1, String idTabel2, String namaTabel1, String namaTabel2) {
         koneksiDatabase();
         SQL = "SELECT * ";
         SQL += " FROM " + namaTabel1;
-        SQL += " INNER JOIN "+namaTabel2+" ON ";
-        SQL += namaTabel1+"."+idTabel1+"="+namaTabel2+"."+idTabel2;
+        SQL += " INNER JOIN " + namaTabel2 + " ON ";
+        SQL += namaTabel1 + "." + idTabel1 + "=" + namaTabel2 + "." + idTabel2;
         return this.eksekusiQuery(SQL);
 
-    } 
+    }
+
     //Overload fungsi untuk eksekusi query select dengan dengan INNER JOIN
     public ResultSet innerJoin(String[] primarykey, String namaTabel1, String namaTabel2) {
 
         koneksiDatabase();
         SQL = "SELECT * ";
         SQL += " FROM " + namaTabel1;
-        SQL += " INNER JOIN "+namaTabel2+" ON ";
-        SQL += namaTabel1+"."+primarykey[0]+"="+namaTabel2+"."+primarykey[1];
+        SQL += " INNER JOIN " + namaTabel2 + " ON ";
+        SQL += namaTabel1 + "." + primarykey[0] + "=" + namaTabel2 + "." + primarykey[1];
         return this.eksekusiQuery(SQL);
 
     }
@@ -247,12 +249,25 @@ public class DatabaseConn {
         return this.eksekusiUpdate(SQL);
 
     }
-    
-    
-    public static Throwable getRootCause(Throwable throwable) {
-    if (throwable.getCause() != null)
-        return getRootCause(throwable.getCause());
 
-    return throwable;
-}
+    public static Throwable getRootCause(Throwable throwable) {
+        if (throwable.getCause() != null) {
+            return getRootCause(throwable.getCause());
+        }
+
+        return throwable;
+    }
+
+    public boolean isServerUp(String Host, int port) {
+        boolean isUp = false;
+        try {
+            Socket socket = new Socket("127.0.0.1", port);
+            // Server is up
+            isUp = true;
+            socket.close();
+        } catch (IOException e) {
+            // Server is down
+        }
+        return isUp;
+    }
 }

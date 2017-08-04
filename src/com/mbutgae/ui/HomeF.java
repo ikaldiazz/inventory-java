@@ -8,6 +8,7 @@ package com.mbutgae.ui;
 import com.mbutgae.db.DatabaseConn;
 import com.mbutgae.db.Parameter;
 import com.mbutgae.misc.Clock;
+import com.mbutgae.misc.DayTime;
 import com.mbutgae.misc.HourTime;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -41,15 +42,19 @@ public class HomeF extends javax.swing.JFrame {
     public HomeF() {
         db = new DatabaseConn(new Parameter().HOST_DB, new Parameter().USERNAME_DB, new Parameter().PASSWORD_DB, new Parameter().IPHOST, new Parameter().PORT);
         initComponents();
+        
         u.setUsername("manager");
         u.setRights("2");
         welcomelabel.setText("Selamat Datang " + u.getUsername());
-        
+
         HourTime c1 = new HourTime(jamlbl);
         Thread t1 = new Thread(c1);
         t1.start();
-        hari();
-        
+
+        DayTime c2 = new DayTime(tanggallbl);
+        Thread t2 = new Thread(c2);
+        t2.start();
+
         setExtendedState(HomeF.MAXIMIZED_BOTH);
         windowsMaxState = this.screen();
 
@@ -57,26 +62,21 @@ public class HomeF extends javax.swing.JFrame {
 
     public HomeF(User us) {
         db = new DatabaseConn(new Parameter().HOST_DB, new Parameter().USERNAME_DB, new Parameter().PASSWORD_DB, new Parameter().IPHOST, new Parameter().PORT);
-        initComponents();
-
-        ImageIcon icon = new ImageIcon("./src/icon/maximize.png");
-        Image img = icon.getImage();
-        Image newimg = img.getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH);
-        icon = new ImageIcon(newimg);
-
-        maximize.setIcon(icon);
+        initComponents();        
 
         u.setUsername(us.getUsername());
         u.setRights(us.getRights());
-
         us.showStatus();
 
         welcomelabel.setText("Selamat Datang " + u.getUsername());
         HourTime c1 = new HourTime(jamlbl);
         Thread t1 = new Thread(c1);
         t1.start();
-        hari();
         
+        DayTime c2 = new DayTime(tanggallbl);
+        Thread t2 = new Thread(c2);
+        t2.start();
+
         setExtendedState(HomeF.MAXIMIZED_BOTH);
 
     }
@@ -97,8 +97,6 @@ public class HomeF extends javax.swing.JFrame {
         icon = new ImageIcon(newimg);
         return icon;
     }
-    
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -358,14 +356,20 @@ public class HomeF extends javax.swing.JFrame {
                 0,
                 icon);
         if (selectedOption == JOptionPane.YES_OPTION) {
-            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-            Date date = new Date();
-            System.out.println(dateFormat.format(date));
 
-            String[] kolom = {"user_id", "date", "operation"};
-            String[] isi = {u.getUsername(), dateFormat.format(date), "0"};
-            System.out.println(db.queryInsert("user_log", kolom, isi));
-            System.exit(0);
+            if (db.isServerUp(new Parameter().IPHOST, 3306)) {
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                Date date = new Date();
+                System.out.println(dateFormat.format(date));
+
+                String[] kolom = {"user_id", "date", "operation"};
+                String[] isi = {u.getUsername(), dateFormat.format(date), "0"};
+                System.out.println(db.queryInsert("user_log", kolom, isi));
+                System.exit(0);
+            } else {
+                System.out.println("Database is OFF");
+                System.exit(0);
+            }
         }
     }//GEN-LAST:event_closeMouseClicked
 
@@ -432,13 +436,7 @@ public class HomeF extends javax.swing.JFrame {
             }
         });
     }
-    public void hari() {
-        Date skrg = new Date();
-        SimpleDateFormat tgl = new SimpleDateFormat("EEEE, dd MMM yyyy");
-//        SimpleDateFormat hari = new SimpleDateFormat("HH:mm");
-//        jamlbl.setText(hari.format(skrg));
-        tanggallbl.setText(tgl.format(skrg));
-    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelBottom;
