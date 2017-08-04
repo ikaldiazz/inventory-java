@@ -10,6 +10,7 @@ import com.mbutgae.db.Parameter;
 import com.mbutgae.misc.Clock;
 import com.mbutgae.misc.DayTime;
 import com.mbutgae.misc.HourTime;
+import com.mbutgae.misc.Word;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Image;
@@ -32,6 +33,9 @@ public class HomeF extends javax.swing.JFrame {
     User u = new User();
     ResultSet rs;
     DatabaseConn db;
+    
+    Word w = new Word();
+    
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     int maxHeight, maxWidth;
     Dimension windowsMaxState;
@@ -45,7 +49,7 @@ public class HomeF extends javax.swing.JFrame {
         
         u.setUsername("manager");
         u.setRights("2");
-        welcomelabel.setText("Selamat Datang " + u.getUsername());
+        welcomelabel.setText("Selamat Datang " + w.toTitleCase(u.getUsername()));
 
         HourTime c1 = new HourTime(jamlbl);
         Thread t1 = new Thread(c1);
@@ -68,7 +72,7 @@ public class HomeF extends javax.swing.JFrame {
         u.setRights(us.getRights());
         us.showStatus();
 
-        welcomelabel.setText("Selamat Datang " + u.getUsername());
+        welcomelabel.setText("Selamat Datang " + w.toTitleCase(u.getUsername()));
         HourTime c1 = new HourTime(jamlbl);
         Thread t1 = new Thread(c1);
         t1.start();
@@ -365,7 +369,10 @@ public class HomeF extends javax.swing.JFrame {
                 String[] kolom = {"user_id", "date", "operation"};
                 String[] isi = {u.getUsername(), dateFormat.format(date), "0"};
                 System.out.println(db.queryInsert("user_log", kolom, isi));
-                System.exit(0);
+                
+                this.setVisible(false);
+                new LoginF().setVisible(true);
+                //System.exit(0);
             } else {
                 System.out.println("Database is OFF");
                 System.exit(0);
@@ -384,10 +391,10 @@ public class HomeF extends javax.swing.JFrame {
     }//GEN-LAST:event_maximizeMouseClicked
 
     private void jamlblMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jamlblMouseClicked
-        desktop.removeAll();
-        LoginF log = new LoginF();
-        desktop.add(log);
-        log.setVisible(true);
+//        desktop.removeAll();
+//        LoginF log = new LoginF();
+//        desktop.add(log);
+//        log.setVisible(true);
     }//GEN-LAST:event_jamlblMouseClicked
 
     private void welcomelabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_welcomelabelMouseClicked
@@ -413,7 +420,7 @@ public class HomeF extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }

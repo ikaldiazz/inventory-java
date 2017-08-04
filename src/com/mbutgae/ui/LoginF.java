@@ -105,7 +105,7 @@ public class LoginF extends javax.swing.JFrame {
                     //              Home h = new Home();
                     //              h.setVisible(true);
                     //              this.dispose();
-                    System.out.println("GOD_Mode");
+                    System.out.println("Entering GOD Mode");
                     System.out.println("Log");
 
                     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -125,7 +125,30 @@ public class LoginF extends javax.swing.JFrame {
                     this.dispose();
                     HomeF h = new HomeF(user);
                     h.setVisible(true);
-                } else {
+                } if(r.equals("2")){
+                    System.out.println("Log");
+
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                    Date date = new Date();
+                    System.out.println(dateFormat.format(date));
+
+                    String[] kolom = {"user_id", "date", "operation"};
+                    String[] isi = {username.getText(), dateFormat.format(date), "1"};
+                    System.out.println(db.queryInsert("user_log", kolom, isi));
+
+                    user = new User(u, p, r);
+                    System.out.println("Succsessfully Log...");
+                    System.out.println("");
+                    
+                    notifPush("Login Sukses","Selamat Datang "+user.getUsername(), TelegraphType.NOTIFICATION_DONE, 3000);
+                    //JOptionPane.showMessageDialog(this, "Wrong Username and Password");
+                    this.dispose();
+                    HomeF h = new HomeF(user);
+                    h.setVisible(true);
+                }
+                
+                
+                else {
                     //                Transaction t = new Transaction();
                     //                t.setVisible(true);
                     //                this.dispose();
@@ -376,12 +399,15 @@ public class LoginF extends javax.swing.JFrame {
         //Icon icon = setIcon("./src/icon/close-icon.png", 50);
         Icon icon = iconic.getIcon("./src/icon/close-icon.png", 50);
 
-        int selectedOption = JOptionPane.showConfirmDialog(null,
+        int selectedOption = JOptionPane.showConfirmDialog(
+                null,
                 "Apakah anda ingin membatalkan login?",
                 "Abort Login",
                 JOptionPane.YES_NO_OPTION,
                 0,
                 icon);
+        
+        
         if (selectedOption == JOptionPane.YES_OPTION) {
             System.exit(0);
         }
@@ -474,7 +500,7 @@ public class LoginF extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
