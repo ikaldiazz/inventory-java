@@ -23,10 +23,6 @@ public class DayTime implements Runnable {
         this.jb = jb;
     }
 
-    public DayTime(JLabel jb, int format) {
-        this.jb = jb;
-    }
-
     public void run() {
         while (true) {
             try {
@@ -46,7 +42,7 @@ public class DayTime implements Runnable {
         int dayOfMonth = now.get(Calendar.DAY_OF_MONTH);
         String dayOfMonthStr = String.valueOf(dayOfMonth);
 
-        int month = now.get(Calendar.MONTH);
+//        int monthNow = now.get(Calendar.MONTH);
         int year = now.get(Calendar.YEAR);
 
         Date date = new Date();

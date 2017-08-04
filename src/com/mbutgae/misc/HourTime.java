@@ -20,10 +20,6 @@ public class HourTime implements Runnable {
     public HourTime(JLabel jb) {
         this.jb = jb;
     }
-    
-    public HourTime(JLabel jb, int format) {
-        this.jb = jb;
-    }
 
     public void run() {
         while (true) {

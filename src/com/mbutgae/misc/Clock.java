@@ -20,10 +20,6 @@ public class Clock implements Runnable {
     public Clock(JLabel jb) {
         this.jb = jb;
     }
-    
-    public Clock(JLabel jb, int format) {
-        this.jb = jb;
-    }
 
     public void run() {
         while (true) {

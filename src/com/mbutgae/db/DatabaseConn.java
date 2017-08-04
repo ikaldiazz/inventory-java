@@ -258,10 +258,10 @@ public class DatabaseConn {
         return throwable;
     }
 
-    public boolean isServerUp(String Host, int port) {
+    public boolean isServerUp(String host, int port) {
         boolean isUp = false;
         try {
-            Socket socket = new Socket("127.0.0.1", port);
+            Socket socket = new Socket(host, port);
             // Server is up
             isUp = true;
             socket.close();

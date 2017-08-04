@@ -23,9 +23,6 @@ public class Iconic {
         
     }
     
-    public Iconic(String path, int size){
-        
-    }
     
     public Icon getIcon(String path, int size) {
         imgicon = new ImageIcon(path);
