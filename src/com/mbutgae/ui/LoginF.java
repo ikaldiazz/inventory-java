@@ -23,6 +23,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import com.mbutgae.misc.Clock;
 import com.mbutgae.misc.DayTime;
+import com.mbutgae.misc.Encryptor;
 import com.mbutgae.misc.HourTime;
 import com.mbutgae.misc.Iconic;
 import com.mbutgae.obj.User;
@@ -100,7 +101,9 @@ public class LoginF extends javax.swing.JFrame {
         } else {
             //check server is running or not
             if (db.isServerUp(new Parameter().IPHOST, 3306)) {
+
                 rs = db.querySelectAll("user", "user_id='" + username.getText() + "' and pass='" + new String(pass.getPassword()) + "'");
+
                 try {
                     while (rs.next()) {
                         u = rs.getString("user_id");
@@ -115,53 +118,32 @@ public class LoginF extends javax.swing.JFrame {
                     //JOptionPane.showMessageDialog(this, "Username dan Password Salah!");
                     notifPush("Gagal", "Username dan Password Salah!", TelegraphType.NOTIFICATION_ERROR, 3000);
                 } else {
+                    System.out.println("Log");
+
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                    Date date = new Date();
+                    //System.out.println(dateFormat.format(date));
+
+                    String[] kolom = {"user_id", "date", "operation"};
+                    String[] isi = {username.getText(), dateFormat.format(date), "1"};
+                    System.out.println(db.queryInsert("user_log", kolom, isi));
+                    db.closeKoneksi();
+
+                    user = new User(u, p, r);
+
+                    System.out.println("Succsessfully Log...");
+                    System.out.println("");
+
+                    notifPush("Login Sukses", "Selamat Datang " + user.getUsername(), TelegraphType.NOTIFICATION_DONE, 3000);
+                    //JOptionPane.showMessageDialog(this, "Wrong Username and Password");
+                    h = new HomeF(user);
+                    h.setVisible(true);
+                    this.dispose();
+                    
                     if (r.equals("1")) {
-                        //              Home h = new Home();
-                        //              h.setVisible(true);
-                        //              this.dispose();
                         System.out.println("Entering GOD Mode..");
-                        System.out.println("Log");
-
-                        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                        Date date = new Date();
-                        System.out.println(dateFormat.format(date));
-
-                        String[] kolom = {"user_id", "date", "operation"};
-                        String[] isi = {username.getText(), dateFormat.format(date), "1"};
-                        System.out.println(db.queryInsert("user_log", kolom, isi));
-                        db.closeKoneksi();
-
-                        user = new User(u, p, r);
-                        h = new HomeF(user);
-                        h.setVisible(true);
-                        System.out.println("Succsessfully Log...");
-                        System.out.println("");
-
-                        notifPush("Login Sukses", "Selamat Datang " + user.getUsername(), TelegraphType.NOTIFICATION_DONE, 3000);
-                        //JOptionPane.showMessageDialog(this, "Wrong Username and Password");
-                        this.dispose();
-
                     } else if (r.equals("2")) {
-                        System.out.println("Log");
-
-                        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                        Date date = new Date();
-                        System.out.println(dateFormat.format(date));
-
-                        String[] kolom = {"user_id", "date", "operation"};
-                        String[] isi = {username.getText(), dateFormat.format(date), "1"};
-                        System.out.println(db.queryInsert("user_log", kolom, isi));
-                        db.closeKoneksi();
-
-                        user = new User(u, p, r);
-                        System.out.println("Succsessfully Log...");
-                        System.out.println("");
-
-                        notifPush("Login Sukses", "Selamat Datang " + user.getUsername(), TelegraphType.NOTIFICATION_DONE, 3000);
-                        //JOptionPane.showMessageDialog(this, "Wrong Username and Password");
-                        this.dispose();
-                        h = new HomeF(user);
-                        h.setVisible(true);
+                        System.out.println("Entering Class 2 Mode..");
                     } else {
                         System.exit(0);
                         //                Transaction t = new Transaction();
@@ -451,7 +433,7 @@ public class LoginF extends javax.swing.JFrame {
         Icon icon = iconic.getIcon("./src/icon/close-icon.png", 50);
 
         new UIManager();
-        UIManager.put("OptionPane.background",new ColorUIResource(255, 155, 155));  
+        UIManager.put("OptionPane.background", new ColorUIResource(255, 155, 155));
         UIManager.put("Panel.background", new ColorUIResource(255, 155, 155));
         UIManager.put("Button.foreground", new ColorUIResource(255, 0, 0));
         //JOptionPane.showMessageDialog(null, "Green Message", "Green", JOptionPane.INFORMATION_MESSAGE);

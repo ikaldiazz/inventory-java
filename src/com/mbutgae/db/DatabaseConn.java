@@ -43,7 +43,7 @@ public class DatabaseConn {
             //e.printStackTrace();
             //
         }
-        System.out.println("Connection Open");
+        //System.out.println("Connection Open");
 
         return connection;
     }
@@ -65,7 +65,7 @@ public class DatabaseConn {
         try {
             statement = connection.createStatement();
             resultSet = statement.executeQuery(sql);
-            System.out.println(sql);
+            //System.out.println(sql);
         } catch (SQLException ex) {
             ex.toString();
             System.err.println("" + ex.getMessage() + "\n\n");
@@ -96,7 +96,7 @@ public class DatabaseConn {
 
         koneksiDatabase();
         SQL = "SELECT * FROM " + namaTabel;
-        System.out.println(SQL);
+        //System.out.println(SQL);
         return this.eksekusiQuery(SQL);
 
     }
