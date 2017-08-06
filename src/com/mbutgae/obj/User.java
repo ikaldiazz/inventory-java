@@ -5,7 +5,7 @@
  */
 package com.mbutgae.obj;
 
-import com.mbutgae.misc.EncryptR;
+import com.mbutgae.misc.EncodeR;
 
 /**
  *
@@ -14,7 +14,7 @@ import com.mbutgae.misc.EncryptR;
 public class User {
 
     private String username, password, rights;
-    EncryptR enc = new EncryptR();
+    EncodeR enc = new EncodeR();
     
     public User() {
  

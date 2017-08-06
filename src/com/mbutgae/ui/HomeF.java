@@ -10,7 +10,7 @@ import com.mbutgae.db.Parameter;
 import com.mbutgae.misc.DayTime;
 import com.mbutgae.misc.HourTime;
 import com.mbutgae.misc.Word;
-import com.mbutgae.misc.EncryptR;
+import com.mbutgae.misc.EncodeR;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Image;
@@ -23,6 +23,8 @@ import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.UIManager;
+import javax.swing.plaf.ColorUIResource;
 
 /**
  *
@@ -50,6 +52,7 @@ public class HomeF extends javax.swing.JFrame {
         
         u.setUsername("manager");
         u.setRights("2");
+        u.setPassword("mbuh");
         welcomelabel.setText("Selamat Datang " + w.toTitleCase(u.getUsername()));
 
         HourTime c1 = new HourTime(jamlbl);
@@ -356,6 +359,11 @@ public class HomeF extends javax.swing.JFrame {
     private void closeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseClicked
         Icon icon = setIcon("./src/icon/close-icon.png", 50);
         u.showStatus();
+        
+        new UIManager();
+        UIManager.put("OptionPane.background",new ColorUIResource(255, 155, 155));  
+        UIManager.put("Panel.background", new ColorUIResource(255, 155, 155));
+        UIManager.put("Button.foreground", new ColorUIResource(255, 0, 0));
         int selectedOption = JOptionPane.showConfirmDialog(null,
                 "Apakah anda ingin Keluar dari Program?",
                 "Exit Program",

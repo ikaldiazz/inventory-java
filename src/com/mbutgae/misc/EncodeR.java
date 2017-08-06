@@ -9,7 +9,7 @@ package com.mbutgae.misc;
  *
  * @author ALPABETAPINTAR
  */
-public class EncryptR {
+public class EncodeR {
 
     String word;
 
