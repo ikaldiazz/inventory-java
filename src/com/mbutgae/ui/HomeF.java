@@ -10,6 +10,7 @@ import com.mbutgae.db.Parameter;
 import com.mbutgae.misc.DayTime;
 import com.mbutgae.misc.HourTime;
 import com.mbutgae.misc.Word;
+import com.mbutgae.misc.EncryptR;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Image;
@@ -32,6 +33,7 @@ public class HomeF extends javax.swing.JFrame {
     User u = new User();
     ResultSet rs;
     DatabaseConn db;
+    
     
     Word w = new Word();
     
@@ -69,6 +71,7 @@ public class HomeF extends javax.swing.JFrame {
 
         u.setUsername(us.getUsername());
         u.setRights(us.getRights());
+        u.setPassword(us.getPassword());
         us.showStatus();
 
         welcomelabel.setText("Selamat Datang " + w.toTitleCase(u.getUsername()));
@@ -142,6 +145,7 @@ public class HomeF extends javax.swing.JFrame {
 
         close.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/close16.png"))); // NOI18N
+        close.setToolTipText("LOG OUT");
         close.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 closeMouseClicked(evt);

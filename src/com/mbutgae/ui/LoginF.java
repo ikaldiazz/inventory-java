@@ -22,8 +22,13 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import com.mbutgae.misc.Clock;
+import com.mbutgae.misc.DayTime;
+import com.mbutgae.misc.HourTime;
 import com.mbutgae.misc.Iconic;
 import com.mbutgae.obj.User;
+import com.sun.awt.AWTUtilities;
+import javax.swing.UIManager;
+import javax.swing.plaf.ColorUIResource;
 import net.sf.jcarrierpigeon.WindowPosition;
 import net.sf.jtelegraph.Telegraph;
 import net.sf.jtelegraph.TelegraphQueue;
@@ -39,6 +44,7 @@ public class LoginF extends javax.swing.JFrame {
     DatabaseConn db;
     String u, p, r;// username, password, rights variable 
     Iconic iconic = new Iconic();
+    HomeF h;
 
     /**
      * Creates new form LoginF
@@ -46,9 +52,19 @@ public class LoginF extends javax.swing.JFrame {
     public LoginF() {
         db = new DatabaseConn(new Parameter().HOST_DB, new Parameter().USERNAME_DB, new Parameter().PASSWORD_DB, new Parameter().IPHOST, new Parameter().PORT);
         initComponents();
-        Clock c1 = new Clock(timeLabel);
+
+//        Clock c1 = new Clock(timeLabel);
+//        Thread t1 = new Thread(c1);
+//        t1.start();
+//        
+        HourTime c1 = new HourTime(timeLabel);
         Thread t1 = new Thread(c1);
         t1.start();
+
+        DayTime c2 = new DayTime(dayLabel);
+        Thread t2 = new Thread(c2);
+        t2.start();
+
         this.setLocationRelativeTo(null);
         username.requestFocus();
 
@@ -62,7 +78,6 @@ public class LoginF extends javax.swing.JFrame {
 //            }
 //        }
 //    }
-
     public Icon setIcon(String path, int size) {
         ImageIcon icon = new ImageIcon(path);
         Image img = icon.getImage();
@@ -71,7 +86,7 @@ public class LoginF extends javax.swing.JFrame {
         return icon;
     }
 
-    public void notifPush(String title, String message, TelegraphType type,int duration) {
+    public void notifPush(String title, String message, TelegraphType type, int duration) {
         Telegraph tele = new Telegraph(title, message, type, WindowPosition.BOTTOMLEFT, duration);
         TelegraphQueue q = new TelegraphQueue();
         q.add(tele);
@@ -83,76 +98,86 @@ public class LoginF extends javax.swing.JFrame {
             //JOptionPane.showMessageDialog(this, "Isikan Data dengan Benar!");
             notifPush("Gagal", "Masukkan data dengan benar", TelegraphType.NOTIFICATION_WARNING, 3000);
         } else {
-            rs = db.querySelectAll("user", "user_id='" + username.getText() + "' and pass='" + new String(pass.getPassword()) + "'");
-            try {
-                while (rs.next()) {
-                    u = rs.getString("user_id");
-                    p = rs.getString("pass");
-                    r = rs.getString("rights");
+            //check server is running or not
+            if (db.isServerUp(new Parameter().IPHOST, 3306)) {
+                rs = db.querySelectAll("user", "user_id='" + username.getText() + "' and pass='" + new String(pass.getPassword()) + "'");
+                try {
+                    while (rs.next()) {
+                        u = rs.getString("user_id");
+                        p = rs.getString("pass");
+                        r = rs.getString("rights");
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            } catch (SQLException ex) {
-                Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+
+                if (u == null && p == null) {
+                    //JOptionPane.showMessageDialog(this, "Username dan Password Salah!");
+                    notifPush("Gagal", "Username dan Password Salah!", TelegraphType.NOTIFICATION_ERROR, 3000);
+                } else {
+                    if (r.equals("1")) {
+                        //              Home h = new Home();
+                        //              h.setVisible(true);
+                        //              this.dispose();
+                        System.out.println("Entering GOD Mode..");
+                        System.out.println("Log");
+
+                        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                        Date date = new Date();
+                        System.out.println(dateFormat.format(date));
+
+                        String[] kolom = {"user_id", "date", "operation"};
+                        String[] isi = {username.getText(), dateFormat.format(date), "1"};
+                        System.out.println(db.queryInsert("user_log", kolom, isi));
+                        db.closeKoneksi();
+
+                        user = new User(u, p, r);
+                        h = new HomeF(user);
+                        h.setVisible(true);
+                        System.out.println("Succsessfully Log...");
+                        System.out.println("");
+
+                        notifPush("Login Sukses", "Selamat Datang " + user.getUsername(), TelegraphType.NOTIFICATION_DONE, 3000);
+                        //JOptionPane.showMessageDialog(this, "Wrong Username and Password");
+                        this.dispose();
+
+                    } else if (r.equals("2")) {
+                        System.out.println("Log");
+
+                        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                        Date date = new Date();
+                        System.out.println(dateFormat.format(date));
+
+                        String[] kolom = {"user_id", "date", "operation"};
+                        String[] isi = {username.getText(), dateFormat.format(date), "1"};
+                        System.out.println(db.queryInsert("user_log", kolom, isi));
+                        db.closeKoneksi();
+
+                        user = new User(u, p, r);
+                        System.out.println("Succsessfully Log...");
+                        System.out.println("");
+
+                        notifPush("Login Sukses", "Selamat Datang " + user.getUsername(), TelegraphType.NOTIFICATION_DONE, 3000);
+                        //JOptionPane.showMessageDialog(this, "Wrong Username and Password");
+                        this.dispose();
+                        h = new HomeF(user);
+                        h.setVisible(true);
+                    } else {
+                        System.exit(0);
+                        //                Transaction t = new Transaction();
+                        //                t.setVisible(true);
+                        //                this.dispose();
+                    }
+                }
+
+            } //if not running
+            else {
+                System.out.println("Database is OFF");
+                JOptionPane.showMessageDialog(this, "Database NON AKTIF");
+
+                System.exit(0);
             }
 
-            if (u == null && p == null) {
-                //JOptionPane.showMessageDialog(this, "Username dan Password Salah!");
-                notifPush("Gagal", "Username dan Password Salah!", TelegraphType.NOTIFICATION_ERROR, 3000);
-            } else {
-                if (r.equals("1")) {
-                    //              Home h = new Home();
-                    //              h.setVisible(true);
-                    //              this.dispose();
-                    System.out.println("Entering GOD Mode");
-                    System.out.println("Log");
-
-                    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                    Date date = new Date();
-                    System.out.println(dateFormat.format(date));
-
-                    String[] kolom = {"user_id", "date", "operation"};
-                    String[] isi = {username.getText(), dateFormat.format(date), "1"};
-                    System.out.println(db.queryInsert("user_log", kolom, isi));
-                    db.closeKoneksi();
-
-                    user = new User(u, p, r);
-                    System.out.println("Succsessfully Log...");
-                    System.out.println("");
-                    
-                    notifPush("Login Sukses","Selamat Datang "+user.getUsername(), TelegraphType.NOTIFICATION_DONE, 3000);
-                    //JOptionPane.showMessageDialog(this, "Wrong Username and Password");
-                    this.dispose();
-                    HomeF h = new HomeF(user);
-                    h.setVisible(true);
-                } if(r.equals("2")){
-                    System.out.println("Log");
-
-                    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                    Date date = new Date();
-                    System.out.println(dateFormat.format(date));
-
-                    String[] kolom = {"user_id", "date", "operation"};
-                    String[] isi = {username.getText(), dateFormat.format(date), "1"};
-                    System.out.println(db.queryInsert("user_log", kolom, isi));
-                    db.closeKoneksi();
-
-                    user = new User(u, p, r);
-                    System.out.println("Succsessfully Log...");
-                    System.out.println("");
-                    
-                    notifPush("Login Sukses","Selamat Datang "+user.getUsername(), TelegraphType.NOTIFICATION_DONE, 3000);
-                    //JOptionPane.showMessageDialog(this, "Wrong Username and Password");
-                    this.dispose();
-                    HomeF h = new HomeF(user);
-                    h.setVisible(true);
-                }
-                
-                
-                else {
-                    //                Transaction t = new Transaction();
-                    //                t.setVisible(true);
-                    //                this.dispose();
-                }
-            }
         }
 
         username.setText("");
@@ -176,11 +201,12 @@ public class LoginF extends javax.swing.JFrame {
         close = new javax.swing.JLabel();
         username = new javax.swing.JTextField();
         userLabel = new javax.swing.JLabel();
-        timeLabel = new javax.swing.JLabel();
+        dayLabel = new javax.swing.JLabel();
         loginButton = new javax.swing.JButton();
         passLabel = new javax.swing.JLabel();
         pass = new javax.swing.JPasswordField();
         minimize = new javax.swing.JLabel();
+        timeLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(0, 0, 0));
@@ -188,6 +214,14 @@ public class LoginF extends javax.swing.JFrame {
         setLocationByPlatform(true);
         setUndecorated(true);
         setResizable(false);
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                formMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                formMouseExited(evt);
+            }
+        });
 
         JustPanel.setBackground(new java.awt.Color(102, 255, 204));
         JustPanel.setForeground(new java.awt.Color(102, 255, 204));
@@ -242,6 +276,11 @@ public class LoginF extends javax.swing.JFrame {
         username.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(102, 255, 204)));
         username.setMargin(new java.awt.Insets(0, 0, 0, 0));
         username.setPreferredSize(new java.awt.Dimension(0, 25));
+        username.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                usernameMouseEntered(evt);
+            }
+        });
         username.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 usernameKeyPressed(evt);
@@ -253,12 +292,12 @@ public class LoginF extends javax.swing.JFrame {
         userLabel.setLabelFor(username);
         userLabel.setText("USER");
 
-        timeLabel.setFont(new java.awt.Font("Segoe UI Light", 1, 18)); // NOI18N
-        timeLabel.setForeground(new java.awt.Color(102, 255, 204));
-        timeLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        timeLabel.setText("TIME");
-        timeLabel.setAlignmentY(0.0F);
-        timeLabel.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(102, 255, 204)));
+        dayLabel.setFont(new java.awt.Font("Segoe UI Light", 1, 18)); // NOI18N
+        dayLabel.setForeground(new java.awt.Color(102, 255, 204));
+        dayLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        dayLabel.setText("TIME");
+        dayLabel.setAlignmentY(0.0F);
+        dayLabel.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(102, 255, 204)));
 
         loginButton.setBackground(new java.awt.Color(0, 0, 0));
         loginButton.setFont(new java.awt.Font("Segoe UI Light", 1, 18)); // NOI18N
@@ -296,6 +335,11 @@ public class LoginF extends javax.swing.JFrame {
         pass.setForeground(username.getForeground());
         pass.setBorder(username.getBorder());
         pass.setPreferredSize(new java.awt.Dimension(0, 25));
+        pass.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                passMouseEntered(evt);
+            }
+        });
         pass.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 passKeyPressed(evt);
@@ -316,6 +360,10 @@ public class LoginF extends javax.swing.JFrame {
             }
         });
 
+        timeLabel.setFont(new java.awt.Font("Segoe UI Light", 1, 36)); // NOI18N
+        timeLabel.setForeground(userLabel.getForeground());
+        timeLabel.setText("TIME2");
+
         javax.swing.GroupLayout InputPanelLayout = new javax.swing.GroupLayout(InputPanel);
         InputPanel.setLayout(InputPanelLayout);
         InputPanelLayout.setHorizontalGroup(
@@ -330,9 +378,6 @@ public class LoginF extends javax.swing.JFrame {
                 .addGroup(InputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(loginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(InputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(InputPanelLayout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(timeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, InputPanelLayout.createSequentialGroup()
                             .addGap(50, 50, 50)
                             .addGroup(InputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -341,7 +386,12 @@ public class LoginF extends javax.swing.JFrame {
                             .addGap(29, 29, 29)
                             .addGroup(InputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(pass, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(pass, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(InputPanelLayout.createSequentialGroup()
+                            .addContainerGap()
+                            .addGroup(InputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(dayLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(timeLabel)))))
                 .addContainerGap(50, Short.MAX_VALUE))
         );
         InputPanelLayout.setVerticalGroup(
@@ -362,8 +412,10 @@ public class LoginF extends javax.swing.JFrame {
                 .addGap(20, 20, 20)
                 .addComponent(loginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(48, 48, 48)
+                .addComponent(dayLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(timeLabel)
-                .addContainerGap(71, Short.MAX_VALUE))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -398,6 +450,11 @@ public class LoginF extends javax.swing.JFrame {
         //Icon icon = setIcon("./src/icon/close-icon.png", 50);
         Icon icon = iconic.getIcon("./src/icon/close-icon.png", 50);
 
+        new UIManager();
+        UIManager.put("OptionPane.background",new ColorUIResource(255, 155, 155));  
+        UIManager.put("Panel.background", new ColorUIResource(255, 155, 155));
+        UIManager.put("Button.foreground", new ColorUIResource(255, 0, 0));
+        //JOptionPane.showMessageDialog(null, "Green Message", "Green", JOptionPane.INFORMATION_MESSAGE);
         int selectedOption = JOptionPane.showConfirmDialog(
                 null,
                 "Apakah anda ingin membatalkan login?",
@@ -405,8 +462,7 @@ public class LoginF extends javax.swing.JFrame {
                 JOptionPane.YES_NO_OPTION,
                 0,
                 icon);
-        
-        
+
         if (selectedOption == JOptionPane.YES_OPTION) {
             System.exit(0);
         }
@@ -418,6 +474,7 @@ public class LoginF extends javax.swing.JFrame {
         loginButton.setBackground(JustPanel.getBackground());
         loginButton.setForeground(InputPanel.getBackground());
         loginButton.setOpaque(true);
+        AWTUtilities.setWindowOpacity(this, 1.0f);
     }//GEN-LAST:event_loginButtonMouseEntered
 
     private void loginButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_loginButtonMouseExited
@@ -452,6 +509,7 @@ public class LoginF extends javax.swing.JFrame {
 
     private void closeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseEntered
         close.setIcon(iconic.getIcon("./src/icon/windows/close16.png", 16));
+        AWTUtilities.setWindowOpacity(this, 1.0f);
     }//GEN-LAST:event_closeMouseEntered
 
     private void closeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseExited
@@ -462,6 +520,7 @@ public class LoginF extends javax.swing.JFrame {
     private void minimizeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeMouseEntered
         Icon icon = setIcon("./src/icon/windows/minimise16.png", 16);
         minimize.setIcon(icon);
+        AWTUtilities.setWindowOpacity(this, 1.0f);
     }//GEN-LAST:event_minimizeMouseEntered
 
     private void minimizeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeMouseExited
@@ -487,6 +546,23 @@ public class LoginF extends javax.swing.JFrame {
 
         }//No
     }//GEN-LAST:event_usernameKeyPressed
+
+    private void formMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseExited
+        AWTUtilities.setWindowOpacity(this, 0.75f);
+
+    }//GEN-LAST:event_formMouseExited
+
+    private void formMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseEntered
+        AWTUtilities.setWindowOpacity(this, 1.0f);
+    }//GEN-LAST:event_formMouseEntered
+
+    private void usernameMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usernameMouseEntered
+        AWTUtilities.setWindowOpacity(this, 1.0f);
+    }//GEN-LAST:event_usernameMouseEntered
+
+    private void passMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_passMouseEntered
+        AWTUtilities.setWindowOpacity(this, 1.0f);
+    }//GEN-LAST:event_passMouseEntered
 
     /**
      * @param args the command line arguments
@@ -527,6 +603,7 @@ public class LoginF extends javax.swing.JFrame {
     private javax.swing.JPanel InputPanel;
     private javax.swing.JPanel JustPanel;
     private javax.swing.JLabel close;
+    private javax.swing.JLabel dayLabel;
     private javax.swing.JLabel iconLabel;
     private javax.swing.JButton loginButton;
     private javax.swing.JLabel minimize;

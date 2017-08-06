@@ -5,6 +5,8 @@
  */
 package com.mbutgae.obj;
 
+import com.mbutgae.misc.EncryptR;
+
 /**
  *
  * @author ALPABETAPINTAR
@@ -12,6 +14,7 @@ package com.mbutgae.obj;
 public class User {
 
     private String username, password, rights;
+    EncryptR enc = new EncryptR();
     
     public User() {
  
@@ -58,6 +61,7 @@ public class User {
         System.out.println("====STATUS USER====");
         System.out.println("User : "+this.username);
         System.out.println("Rights : "+this.rights);
+        System.out.println("Password : "+enc.encrypt(this.password));
         System.out.println("===================");
     }
 
