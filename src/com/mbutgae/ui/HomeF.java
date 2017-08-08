@@ -10,7 +10,6 @@ import com.mbutgae.db.Parameter;
 import com.mbutgae.misc.DayTime;
 import com.mbutgae.misc.HourTime;
 import com.mbutgae.misc.Word;
-import com.mbutgae.misc.EncodeR;
 import com.mbutgae.misc.Iconic;
 import com.mbutgae.misc.LabelListener;
 import java.awt.Dimension;
