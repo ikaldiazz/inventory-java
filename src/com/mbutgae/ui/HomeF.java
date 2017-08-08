@@ -21,6 +21,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import com.mbutgae.obj.User;
+import com.sun.awt.AWTUtilities;
 import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -35,16 +36,17 @@ import javax.swing.plaf.ColorUIResource;
  */
 public class HomeF extends javax.swing.JFrame {
 
-    User u = new User();
+    User u;
+
     ResultSet rs;
     DatabaseConn db;
-    
-    Iconic iconic = new Iconic();    
-    
+
+    Iconic iconic = new Iconic();
+
     private final Timer timerx;
-    
+
     Word w = new Word();
-    
+
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     int maxHeight, maxWidth;
     Dimension windowsMaxState;
@@ -55,17 +57,19 @@ public class HomeF extends javax.swing.JFrame {
     public HomeF() {
         db = new DatabaseConn(new Parameter().HOST_DB, new Parameter().USERNAME_DB, new Parameter().PASSWORD_DB, new Parameter().IPHOST, new Parameter().PORT);
         initComponents();
-        //this.setIconImage(setIcon(iconic.getIcon("./src/icon/windows/close100.png", 16)));;
-        setIconImage(new ImageIcon("./src/icon/windows/inventory.png").getImage());
+
+        new UIManager();
+        UIManager.put("OptionPane.background", new ColorUIResource(255, 155, 155));
+        UIManager.put("Panel.background", new ColorUIResource(240, 240, 240));
+        UIManager.put("Button.foreground", new ColorUIResource(255, 0, 0));
         
-        u.setUsername("manager");
-        u.setRights("2");
-        u.setPassword("mbuh");
-        
-        timerx = new Timer(500, new LabelListener(welcomelabel));       
-        
-        welcomelabel.setText("    Selamat Datang " + w.toTitleCase(u.getUsername())+"    ");
-        
+        this.setIconImage(new ImageIcon("./src/icon/windows/inventory.png").getImage());
+
+        u = new User("manager", "mbuh", "2");
+        this.u.showStatus();
+
+        timerx = new Timer(500, new LabelListener(welcomelabel));
+        welcomelabel.setText("    Selamat Datang " + w.toTitleCase(u.getUsername()) + "    ");
         timerx.start();
 
         HourTime c1 = new HourTime(jamlbl);
@@ -76,33 +80,25 @@ public class HomeF extends javax.swing.JFrame {
         Thread t2 = new Thread(c2);
         t2.start();
 
-        setExtendedState(HomeF.MAXIMIZED_BOTH);
+        this.setExtendedState(HomeF.MAXIMIZED_BOTH);
         windowsMaxState = this.screen();
 
     }
 
     public HomeF(User us) {
-        db = new DatabaseConn(new Parameter().HOST_DB, new Parameter().USERNAME_DB, new Parameter().PASSWORD_DB, new Parameter().IPHOST, new Parameter().PORT);
-        initComponents();        
+        this();
+        //db = new DatabaseConn(new Parameter().HOST_DB, new Parameter().USERNAME_DB, new Parameter().PASSWORD_DB, new Parameter().IPHOST, new Parameter().PORT);
+        //initComponents();        
 
-        u.setUsername(us.getUsername());
-        u.setRights(us.getRights());
-        u.setPassword(us.getPassword());
-        us.showStatus();
+//        u.setUsername(us.getUsername());
+//        u.setRights(us.getRights());
+//        u.setPassword(us.getPassword());
+//        us.showStatus();
+        u = new User(us.getUsername(), us.getPassword(), us.getRights());
+        u.showStatus();
         
-        timerx = new Timer(500, new LabelListener(welcomelabel)); 
-        welcomelabel.setText("   Selamat Datang " + w.toTitleCase(u.getUsername())+"   ");        
+        welcomelabel.setText("    Selamat Datang " + w.toTitleCase(u.getUsername()) + "    ");        
         timerx.start();
-        
-        HourTime c1 = new HourTime(jamlbl);
-        Thread t1 = new Thread(c1);
-        t1.start();
-        
-        DayTime c2 = new DayTime(tanggallbl);
-        Thread t2 = new Thread(c2);
-        t2.start();
-
-        setExtendedState(HomeF.MAXIMIZED_BOTH);
 
     }
 
@@ -383,11 +379,12 @@ public class HomeF extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void closeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseClicked
+        AWTUtilities.setWindowOpacity(this, 0.5f);
         Icon icon = setIcon("./src/icon/close-icon.png", 50);
         u.showStatus();
-        
+
         new UIManager();
-        UIManager.put("OptionPane.background",new ColorUIResource(255, 155, 155));  
+        UIManager.put("OptionPane.background", new ColorUIResource(255, 155, 155));
         UIManager.put("Panel.background", new ColorUIResource(255, 155, 155));
         UIManager.put("Button.foreground", new ColorUIResource(255, 0, 0));
         int selectedOption = JOptionPane.showConfirmDialog(null,
@@ -406,7 +403,7 @@ public class HomeF extends javax.swing.JFrame {
                 String[] kolom = {"user_id", "date", "operation"};
                 String[] isi = {u.getUsername(), dateFormat.format(date), "0"};
                 System.out.println(db.queryInsert("user_log", kolom, isi));
-                
+
                 this.setVisible(false);
                 new LoginF().setVisible(true);
                 //System.exit(0);
@@ -414,6 +411,8 @@ public class HomeF extends javax.swing.JFrame {
                 System.out.println("Database is OFF");
                 System.exit(0);
             }
+        } else {
+            AWTUtilities.setWindowOpacity(this, 1f);
         }
     }//GEN-LAST:event_closeMouseClicked
 
@@ -455,7 +454,7 @@ public class HomeF extends javax.swing.JFrame {
     }//GEN-LAST:event_closeMouseExited
 
     private void closeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMousePressed
-       close.setIcon(iconic.getIcon("./src/icon/windows/close100.png", 16));
+        close.setIcon(iconic.getIcon("./src/icon/windows/close100.png", 16));
     }//GEN-LAST:event_closeMousePressed
 
     /**

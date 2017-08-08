@@ -432,6 +432,8 @@ public class LoginF extends javax.swing.JFrame {
 
         //close.setIcon(iconic.getIcon("./src/icon/windows/close16.png", 16));
         //Icon icon = setIcon("./src/icon/close-icon.png", 50);
+        
+        AWTUtilities.setWindowOpacity(this, 0.5f);
         Icon icon = iconic.getIcon("./src/icon/close-icon.png", 50);
 
         new UIManager();
@@ -449,6 +451,8 @@ public class LoginF extends javax.swing.JFrame {
 
         if (selectedOption == JOptionPane.YES_OPTION) {
             System.exit(0);
+        }else{
+            AWTUtilities.setWindowOpacity(this, 1f);
         }
 
 
@@ -532,12 +536,12 @@ public class LoginF extends javax.swing.JFrame {
     }//GEN-LAST:event_usernameKeyPressed
 
     private void formMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseExited
-        AWTUtilities.setWindowOpacity(this, 0.75f);
+        //AWTUtilities.setWindowOpacity(this, 0.75f);
 
     }//GEN-LAST:event_formMouseExited
 
     private void formMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseEntered
-        AWTUtilities.setWindowOpacity(this, 1.0f);
+        //AWTUtilities.setWindowOpacity(this, 1.0f);
     }//GEN-LAST:event_formMouseEntered
 
     private void usernameMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usernameMouseEntered
