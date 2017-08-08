@@ -238,6 +238,7 @@ public class LoginF extends javax.swing.JFrame {
 
         close.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/close16w.png"))); // NOI18N
+        close.setToolTipText("Close");
         close.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 closeMouseClicked(evt);
@@ -330,6 +331,7 @@ public class LoginF extends javax.swing.JFrame {
 
         minimize.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/minimise16w.png"))); // NOI18N
+        minimize.setToolTipText("Minimize");
         minimize.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 minimizeMouseClicked(evt);
@@ -490,7 +492,7 @@ public class LoginF extends javax.swing.JFrame {
     }//GEN-LAST:event_loginButtonActionPerformed
 
     private void closeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseEntered
-        close.setIcon(iconic.getIcon("./src/icon/windows/close16.png", 16));
+        close.setIcon(iconic.getIcon("./src/icon/windows/close100red.png", 16));
         AWTUtilities.setWindowOpacity(this, 1.0f);
     }//GEN-LAST:event_closeMouseEntered
 
@@ -500,7 +502,7 @@ public class LoginF extends javax.swing.JFrame {
     }//GEN-LAST:event_closeMouseExited
 
     private void minimizeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeMouseEntered
-        Icon icon = setIcon("./src/icon/windows/minimise16.png", 16);
+        Icon icon = setIcon("./src/icon/windows/minimise100blue.png", 16);
         minimize.setIcon(icon);
         AWTUtilities.setWindowOpacity(this, 1.0f);
     }//GEN-LAST:event_minimizeMouseEntered

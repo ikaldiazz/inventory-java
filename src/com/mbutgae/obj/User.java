@@ -66,7 +66,7 @@ public class User {
         System.out.println("Rights : "+this.rights);
 
         try {
-            System.out.println("Password : "+ new Encryptor().encrypt(new EncodeR().encrypt(this.password)));
+            System.out.println("Password : "+ new Encryptor().encrypt(this.password));
         } catch (Exception ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
         }

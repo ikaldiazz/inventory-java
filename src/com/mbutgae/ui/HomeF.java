@@ -11,6 +11,8 @@ import com.mbutgae.misc.DayTime;
 import com.mbutgae.misc.HourTime;
 import com.mbutgae.misc.Word;
 import com.mbutgae.misc.EncodeR;
+import com.mbutgae.misc.Iconic;
+import com.mbutgae.misc.LabelListener;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Image;
@@ -23,6 +25,7 @@ import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 
@@ -36,6 +39,9 @@ public class HomeF extends javax.swing.JFrame {
     ResultSet rs;
     DatabaseConn db;
     
+    Iconic iconic = new Iconic();    
+    
+    private final Timer timerx;
     
     Word w = new Word();
     
@@ -49,11 +55,18 @@ public class HomeF extends javax.swing.JFrame {
     public HomeF() {
         db = new DatabaseConn(new Parameter().HOST_DB, new Parameter().USERNAME_DB, new Parameter().PASSWORD_DB, new Parameter().IPHOST, new Parameter().PORT);
         initComponents();
+        //this.setIconImage(setIcon(iconic.getIcon("./src/icon/windows/close100.png", 16)));;
+        setIconImage(new ImageIcon("./src/icon/windows/inventory.png").getImage());
         
         u.setUsername("manager");
         u.setRights("2");
         u.setPassword("mbuh");
-        welcomelabel.setText("Selamat Datang " + w.toTitleCase(u.getUsername()));
+        
+        timerx = new Timer(500, new LabelListener(welcomelabel));       
+        
+        welcomelabel.setText("    Selamat Datang " + w.toTitleCase(u.getUsername())+"    ");
+        
+        timerx.start();
 
         HourTime c1 = new HourTime(jamlbl);
         Thread t1 = new Thread(c1);
@@ -76,8 +89,11 @@ public class HomeF extends javax.swing.JFrame {
         u.setRights(us.getRights());
         u.setPassword(us.getPassword());
         us.showStatus();
-
-        welcomelabel.setText("Selamat Datang " + w.toTitleCase(u.getUsername()));
+        
+        timerx = new Timer(500, new LabelListener(welcomelabel)); 
+        welcomelabel.setText("   Selamat Datang " + w.toTitleCase(u.getUsername())+"   ");        
+        timerx.start();
+        
         HourTime c1 = new HourTime(jamlbl);
         Thread t1 = new Thread(c1);
         t1.start();
@@ -133,10 +149,11 @@ public class HomeF extends javax.swing.JFrame {
         btn_start = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("INVENTORY SYSTEM");
         setBackground(new java.awt.Color(0, 51, 255));
         setUndecorated(true);
 
-        jPanel1.setBackground(new java.awt.Color(0, 102, 255));
+        jPanel1.setBackground(new java.awt.Color(153, 255, 255));
 
         minimize.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/minimise16.png"))); // NOI18N
@@ -152,6 +169,15 @@ public class HomeF extends javax.swing.JFrame {
         close.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 closeMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                closeMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                closeMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                closeMousePressed(evt);
             }
         });
 
@@ -310,7 +336,7 @@ public class HomeF extends javax.swing.JFrame {
             PanelStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelStatusLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(welcomelabel)
+                .addComponent(welcomelabel, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btn_start, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(81, 81, 81)
@@ -419,6 +445,18 @@ public class HomeF extends javax.swing.JFrame {
     private void lbl_statusMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_statusMouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_lbl_statusMouseClicked
+
+    private void closeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseEntered
+        close.setIcon(iconic.getIcon("./src/icon/windows/close100red.png", 16));
+    }//GEN-LAST:event_closeMouseEntered
+
+    private void closeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseExited
+        close.setIcon(iconic.getIcon("./src/icon/windows/close100.png", 16));
+    }//GEN-LAST:event_closeMouseExited
+
+    private void closeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMousePressed
+       close.setIcon(iconic.getIcon("./src/icon/windows/close100.png", 16));
+    }//GEN-LAST:event_closeMousePressed
 
     /**
      * @param args the command line arguments
