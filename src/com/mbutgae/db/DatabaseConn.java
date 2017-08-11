@@ -4,6 +4,9 @@
  */
 package com.mbutgae.db;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.*;
@@ -249,6 +252,59 @@ public class DatabaseConn {
         SQL = "DELETE FROM " + namaTabel + " WHERE " + kondisi;
         return this.eksekusiUpdate(SQL);
 
+    }
+
+//metod PrepareStatement
+    public ResultSet insertImage(String namaTabel, String[] namaKolom, String[] isiTabel) {
+        koneksiDatabase();
+
+        ResultSet resultSet = null;
+        int i;
+        SQL = "INSERT INTO " + namaTabel + "(";
+        for (i = 0; i <= namaKolom.length - 1; i++) {
+            SQL += namaKolom[i];
+            if (i < namaKolom.length - 1) {
+                SQL += ",";
+            }
+        }
+        SQL += ") VALUES(";
+        for (i = 0; i <= isiTabel.length - 1; i++) {
+            SQL += "?";
+            if (i < isiTabel.length - 1) {
+                SQL += ",";
+            }
+        }
+
+        SQL += ")";
+        System.out.println(SQL);
+        
+//        for (i = 0; i <= isiTabel.length - 1; i++) {
+//            
+//            if (i < isiTabel.length - 1) {
+//                
+//            }
+//        }
+        
+
+//        FileInputStream fis = null;
+//        PreparedStatement ps = null;
+//        try {
+//            koneksiDatabase().setAutoCommit(false);
+//            File file = new File(gambar);
+//            fis = new FileInputStream(file);
+//            ps = koneksiDatabase().prepareStatement(SQL);
+//            ps.setString(1, "001");
+//            ps.setString(2, "name");
+//            ps.setBinaryStream(3, fis, (int) file.length());
+//            ps.executeUpdate();
+//            koneksiDatabase().commit();
+//        } catch (SQLException ex) {
+//            Logger.getLogger(DatabaseConn.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(DatabaseConn.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+
+        return resultSet;
     }
 
     public static Throwable getRootCause(Throwable throwable) {
