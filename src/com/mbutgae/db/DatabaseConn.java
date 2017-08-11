@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComboBox;
 
 public class DatabaseConn {
 
@@ -130,6 +131,27 @@ public class DatabaseConn {
         SQL += " FROM " + namaTabel;
         return this.eksekusiQuery(SQL);
 
+    }
+
+    //Fungsi untuk memasukkan dat ke ComboBox
+    public void rsToComboBox(String namaTabel, String namaKolom, JComboBox cb) {
+
+        koneksiDatabase();
+        SQL = "SELECT " + namaKolom + " FROM " + namaTabel;
+        ResultSet rs = eksekusiQuery(SQL);
+
+        if (cb.getItemCount() == 0) {
+            try {
+                while (rs.next()) {
+                    cb.addItem(rs.getString(namaKolom));
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(DatabaseConn.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        //cb.removeAllItems();
+        //closeKoneksi();
     }
 
 //Overload fungsi untuk eksekusi query select dengan kolom spesifik dengan where
@@ -277,15 +299,13 @@ public class DatabaseConn {
 
         SQL += ")";
         System.out.println(SQL);
-        
+
 //        for (i = 0; i <= isiTabel.length - 1; i++) {
 //            
 //            if (i < isiTabel.length - 1) {
 //                
 //            }
 //        }
-        
-
 //        FileInputStream fis = null;
 //        PreparedStatement ps = null;
 //        try {
@@ -303,7 +323,6 @@ public class DatabaseConn {
 //        } catch (FileNotFoundException ex) {
 //            Logger.getLogger(DatabaseConn.class.getName()).log(Level.SEVERE, null, ex);
 //        }
-
         return resultSet;
     }
 

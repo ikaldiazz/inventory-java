@@ -5,7 +5,16 @@
  */
 package com.mbutgae.ui;
 
+import com.mbutgae.db.DatabaseConn;
+import com.mbutgae.db.Parameter;
+import com.mbutgae.misc.Iconic;
+import com.mbutgae.obj.Kategori;
 import java.awt.Font;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.UIManager;
 
 /**
@@ -14,38 +23,26 @@ import javax.swing.UIManager;
  */
 public class BarangF extends javax.swing.JFrame {
 
+    ResultSet rs;
+    DatabaseConn db;
+    //String u, p, r;// username, password, rights variable 
+    Iconic iconic = new Iconic();
+    HomeF h;
+    //String category_id;
+    
+    Kategori kat = new Kategori("", "", "");
+
     /**
      * Creates new form BarangF
      */
     public BarangF() {
+        db = new DatabaseConn(new Parameter().HOST_DB, new Parameter().USERNAME_DB, new Parameter().PASSWORD_DB, new Parameter().IPHOST, new Parameter().PORT);
         initComponents();
-        try
-{
-    this.setUIFont(new javax.swing.plaf.FontUIResource("Segoe UI Ligth", Font.PLAIN, 20));
-    }
-    catch(Exception e
+        db.rsToComboBox("category", "cat_name", catComboBox);
 
-    
-    
-
-    ){}
-    }
-
-    public static void setUIFont(javax.swing.plaf.FontUIResource f) {
-        java.util.Enumeration keys = UIManager.getDefaults().keys();
-        while (keys.hasMoreElements()) {
-            Object key = keys.nextElement();
-            Object value = UIManager.get(key);
-            if (value instanceof javax.swing.plaf.FontUIResource) {
-                UIManager.put(key, f);
-            }
-        }
     }
 
 // ...
-    
-        
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -57,7 +54,7 @@ public class BarangF extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tabelBarang = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
@@ -67,13 +64,13 @@ public class BarangF extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        catComboBox = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jTextField3 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        descrTa = new javax.swing.JTextArea();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jButton6 = new javax.swing.JButton();
@@ -82,11 +79,12 @@ public class BarangF extends javax.swing.JFrame {
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tabelBarang.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -97,7 +95,7 @@ public class BarangF extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tabelBarang);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -150,10 +148,9 @@ public class BarangF extends javax.swing.JFrame {
 
         jLabel2.setText("PRODUCT CODE");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+        catComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox1ActionPerformed(evt);
+                catComboBoxActionPerformed(evt);
             }
         });
 
@@ -161,9 +158,9 @@ public class BarangF extends javax.swing.JFrame {
 
         jLabel4.setText("CATEGORY");
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane2.setViewportView(jTextArea1);
+        descrTa.setColumns(20);
+        descrTa.setRows(5);
+        jScrollPane2.setViewportView(descrTa);
 
         jLabel5.setText("IMAGE");
 
@@ -189,18 +186,17 @@ public class BarangF extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jTextField1)
-                            .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                                    .addComponent(jTextField4)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton1))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(jButton6))
-                                .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(jTextField2, javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(jScrollPane2)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                                .addComponent(jTextField4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton1))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                                .addComponent(catComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButton6))
+                            .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane2))
                         .addGap(10, 10, 10))))
         );
         jPanel5Layout.setVerticalGroup(
@@ -220,7 +216,7 @@ public class BarangF extends javax.swing.JFrame {
                     .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(catComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
                     .addComponent(jButton6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -236,6 +232,11 @@ public class BarangF extends javax.swing.JFrame {
         );
 
         jButton2.setText("jButton2");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("jButton3");
 
@@ -305,9 +306,30 @@ public class BarangF extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox1ActionPerformed
+    private void catComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_catComboBoxActionPerformed
+        //category_id = "";
+        //db.rsToComboBox("category", "cat_name", catComboBox);
+        String category_name = catComboBox.getSelectedItem().toString();
+        rs = db.querySelectAll("category", " cat_name = '"+category_name+"'");
+        try {
+            while(rs.next()){
+                //category_id += rs.getString("cat_id");
+                kat.setCatId(rs.getString("cat_id"));
+                kat.setCatName(rs.getString("cat_name"));
+                kat.setDescr(rs.getString("descr"));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        //System.out.println(category_id);
+        kat.showStatus();
+        db.closeKoneksi();
+    }//GEN-LAST:event_catComboBoxActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        kat.showStatus();
+        System.out.println(descrTa.getText());
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -345,13 +367,14 @@ public class BarangF extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> catComboBox;
+    private javax.swing.JTextArea descrTa;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -365,11 +388,10 @@ public class BarangF extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
+    private javax.swing.JTable tabelBarang;
     // End of variables declaration//GEN-END:variables
 }
