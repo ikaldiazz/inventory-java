@@ -86,10 +86,6 @@ public class Barang {
         
         
     }
-    public static void main(String[] args) {
-        Barang a = new Barang("AAA","BBB","CCC","DDD","EEE","FFF");
-        a.showStatus();
-    }
     
     
 }
