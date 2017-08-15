@@ -10,6 +10,7 @@ import com.mbutgae.db.DatabaseConn;
 import com.mbutgae.db.Parameter;
 import com.mbutgae.db.ResultSetTableModel;
 import com.mbutgae.misc.Iconic;
+import com.mbutgae.misc.Word;
 import com.mbutgae.obj.Barang;
 import com.mbutgae.obj.Kategori;
 import java.awt.Dimension;
@@ -19,9 +20,14 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -59,6 +65,9 @@ public class BarangF extends javax.swing.JFrame {
     Icon cari = setIcon("./src/icon/windows/metro/black/search.png", 26);
 
     String[] sIdBarang;
+    String code;
+
+    Word w = new Word();
 
     /**
      * Creates new form BarangF
@@ -72,7 +81,8 @@ public class BarangF extends javax.swing.JFrame {
         cariBtn.setIcon(cari);
         imgPanel.add(ip);
 
-        table();
+        showDefaultTable();
+        codeTf.requestFocus();
     }
 
     public Icon setIcon(String path, int size) {
@@ -81,6 +91,25 @@ public class BarangF extends javax.swing.JFrame {
         Image newimg = img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH);
         icon = new ImageIcon(newimg);
         return icon;
+    }
+
+    public void searchData() {
+        String namaHeader[] = {"ID", "Code", "Product", "Kategori"};
+        String query = "SELECT p.prod_id, p.prod_code, p.product , c.cat_name FROM product AS p INNER JOIN category AS c ON p.cat_id = c.cat_id";
+        String kon = " WHERE ";
+        if (cariCb.getSelectedIndex() == 0) {
+            kon += "p.prod_id LIKE '%" + cariTf.getText() + "%'";
+        } else if (cariCb.getSelectedIndex() == 1) {
+            kon += "p.prod_code LIKE '%" + cariTf.getText() + "%'";
+        } else if (cariCb.getSelectedIndex() == 2) {
+            kon += "p.product LIKE '%" + cariTf.getText() + "%'";
+        } else if (cariCb.getSelectedIndex() == 3) {
+            kon += "c.cat_name LIKE '%" + cariTf.getText() + "%'";
+        }
+        System.out.println("" + query + kon);
+        //kon += " ORDER BY p.prod_id ASC";
+        showDefaultTable(namaHeader, query, kon);
+        changeHeader(namaHeader, tabelBarang);
     }
 
     public boolean cekInputForm() {
@@ -141,18 +170,41 @@ public class BarangF extends javax.swing.JFrame {
         return bufferedImage;
     }
 
-    public void table() {
+    public void showDefaultTable() {
         String namaHeader[] = {"ID", "Code", "Product", "Kategori"};
-        rs = db.eksekusiQuery("SELECT p.prod_id, p.prod_code, p.product , c.cat_name FROM product AS p INNER JOIN category AS c ON p.cat_id = c.cat_id");
+        rs = db.eksekusiQuery("SELECT p.prod_id, p.prod_code, p.product , c.cat_name FROM product AS p INNER JOIN category AS c ON p.cat_id = c.cat_id ORDER BY prod_id ASC");
         tabelBarang.setModel(new ResultSetTableModel(rs));
         changeHeader(namaHeader, tabelBarang);
+    }
 
+    public void showDefaultTable(String[] header, String SQL, String kondisi) {
+        String namaHeader[] = header;
+        rs = db.eksekusiQuery(SQL + kondisi + " ORDER BY prod_id ASC");
+        tabelBarang.setModel(new ResultSetTableModel(rs));
+        changeHeader(namaHeader, tabelBarang);
     }
 
     public void notifPush(String title, String message, TelegraphType type, int duration) {
         Telegraph tele = new Telegraph(title, message, type, WindowPosition.BOTTOMLEFT, duration);
         TelegraphQueue q = new TelegraphQueue();
         q.add(tele);
+    }
+
+    public void clear() {
+        simpanBtn.setEnabled(true);
+        editBtn.setEnabled(false);
+        deleteBtn.setEnabled(false);
+        cancelBtn.setEnabled(false);
+        codeTf.setText("");
+        idTextField.setText("");
+        idTextField.requestFocus();
+        imgTf.setText("");
+        catCb.setSelectedIndex(0);
+        descrTa.setText("No Description");
+        nameTf.setText("");
+        ImageIcon a = new ImageIcon("./src/img/Image/noimage.png");
+        Image preview = a.getImage();
+        ip.setImage(preview);
     }
 
     public void changeHeader(String[] header, JTable jt) {
@@ -199,7 +251,7 @@ public class BarangF extends javax.swing.JFrame {
         tablePanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabelBarang = new javax.swing.JTable();
-        carTf = new javax.swing.JTextField();
+        cariTf = new javax.swing.JTextField();
         cariCb = new javax.swing.JComboBox<>();
         cariBtn = new javax.swing.JButton();
         imgPanel = new ImagePanel();
@@ -238,9 +290,15 @@ public class BarangF extends javax.swing.JFrame {
         deleteBtn = new javax.swing.JButton();
         editBtn = new javax.swing.JButton();
         refreshBtn = new javax.swing.JButton();
+        cancelBtn = new javax.swing.JButton();
+        tambah = new javax.swing.JLabel();
+        hapus = new javax.swing.JLabel();
+        cancel = new javax.swing.JLabel();
+        edit = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setUndecorated(true);
         setResizable(false);
 
         tablePanel.setBackground(new java.awt.Color(0, 102, 102));
@@ -267,13 +325,20 @@ public class BarangF extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tabelBarang);
 
-        carTf.setFont(new java.awt.Font("Segoe UI Light", 0, 14)); // NOI18N
-        carTf.setMinimumSize(new java.awt.Dimension(26, 26));
-        carTf.setPreferredSize(new java.awt.Dimension(28, 26));
+        cariTf.setFont(new java.awt.Font("Segoe UI Light", 0, 14)); // NOI18N
+        cariTf.setMinimumSize(new java.awt.Dimension(26, 26));
+        cariTf.setPreferredSize(new java.awt.Dimension(28, 26));
+        cariTf.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                cariTfKeyReleased(evt);
+            }
+        });
 
         cariCb.setFont(new java.awt.Font("Segoe UI Emoji", 0, 14)); // NOI18N
         cariCb.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID", "PRODUCT", "NAME", "CATEGORY" }));
+        cariCb.setSelectedIndex(2);
 
+        cariBtn.setBackground(new java.awt.Color(102, 255, 204));
         cariBtn.setIcon(cari);
         cariBtn.setPreferredSize(new java.awt.Dimension(26, 26));
         cariBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -293,7 +358,7 @@ public class BarangF extends javax.swing.JFrame {
                     .addGroup(tablePanelLayout.createSequentialGroup()
                         .addComponent(cariCb, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(carTf, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cariTf, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cariBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -303,7 +368,7 @@ public class BarangF extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, tablePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(tablePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(carTf, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cariTf, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(cariCb)
                     .addComponent(cariBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -314,13 +379,14 @@ public class BarangF extends javax.swing.JFrame {
         imgPanel.setBackground(new java.awt.Color(0, 102, 102));
         imgPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 10));
 
-        jPanel4.setBackground(new java.awt.Color(255, 255, 204));
+        jPanel4.setBackground(new java.awt.Color(153, 255, 204));
 
         crudPanel.setBackground(new java.awt.Color(102, 255, 204));
         crudPanel.setForeground(new java.awt.Color(0, 102, 102));
 
         idTextField.setFont(new java.awt.Font("Segoe UI Light", 1, 14)); // NOI18N
         idTextField.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(0, 102, 102)));
+        idTextField.setEnabled(false);
         idTextField.setOpaque(false);
 
         browseBtn.setBackground(crudPanel.getForeground());
@@ -359,6 +425,11 @@ public class BarangF extends javax.swing.JFrame {
         codeTf.setFont(new java.awt.Font("Segoe UI Light", 1, 14)); // NOI18N
         codeTf.setBorder(idTextField.getBorder());
         codeTf.setOpaque(false);
+        codeTf.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                codeTfKeyPressed(evt);
+            }
+        });
 
         catCb.setBackground(crudPanel.getBackground());
         catCb.setFont(new java.awt.Font("Segoe UI Light", 1, 14)); // NOI18N
@@ -369,6 +440,11 @@ public class BarangF extends javax.swing.JFrame {
                 catCbActionPerformed(evt);
             }
         });
+        catCb.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                catCbKeyPressed(evt);
+            }
+        });
 
         nameLabel.setFont(new java.awt.Font("Segoe UI Light", 1, 14)); // NOI18N
         nameLabel.setText("NAME");
@@ -376,6 +452,11 @@ public class BarangF extends javax.swing.JFrame {
         nameTf.setFont(new java.awt.Font("Segoe UI Light", 1, 14)); // NOI18N
         nameTf.setBorder(idTextField.getBorder());
         nameTf.setOpaque(false);
+        nameTf.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                nameTfKeyPressed(evt);
+            }
+        });
 
         catLabel.setFont(new java.awt.Font("Segoe UI Light", 1, 14)); // NOI18N
         catLabel.setText("CATEGORY");
@@ -400,6 +481,11 @@ public class BarangF extends javax.swing.JFrame {
         descrTa.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 descrTaMouseClicked(evt);
+            }
+        });
+        descrTa.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                descrTaKeyPressed(evt);
             }
         });
         jScrollPane2.setViewportView(descrTa);
@@ -429,6 +515,11 @@ public class BarangF extends javax.swing.JFrame {
             }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 addCatBtnMouseReleased(evt);
+            }
+        });
+        addCatBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addCatBtnActionPerformed(evt);
             }
         });
 
@@ -505,6 +596,7 @@ public class BarangF extends javax.swing.JFrame {
                 .addGap(14, 14, 14))
         );
 
+        simpanBtn.setBackground(new java.awt.Color(102, 255, 204));
         simpanBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/metro/black/add.png"))); // NOI18N
         simpanBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -512,6 +604,7 @@ public class BarangF extends javax.swing.JFrame {
             }
         });
 
+        deleteBtn.setBackground(new java.awt.Color(102, 255, 204));
         deleteBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/metro/black/delete.png"))); // NOI18N
         deleteBtn.setEnabled(false);
         deleteBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -520,6 +613,7 @@ public class BarangF extends javax.swing.JFrame {
             }
         });
 
+        editBtn.setBackground(new java.awt.Color(102, 255, 204));
         editBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/metro/black/edit.png"))); // NOI18N
         editBtn.setEnabled(false);
         editBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -528,6 +622,7 @@ public class BarangF extends javax.swing.JFrame {
             }
         });
 
+        refreshBtn.setBackground(new java.awt.Color(102, 255, 204));
         refreshBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/metro/black/refresh.png"))); // NOI18N
         refreshBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -535,37 +630,85 @@ public class BarangF extends javax.swing.JFrame {
             }
         });
 
+        cancelBtn.setBackground(new java.awt.Color(102, 255, 204));
+        cancelBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/metro/black/cancel.png"))); // NOI18N
+        cancelBtn.setEnabled(false);
+        cancelBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelBtnActionPerformed(evt);
+            }
+        });
+
+        tambah.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        tambah.setText("TAMBAH");
+
+        hapus.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        hapus.setText("HAPUS");
+
+        cancel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        cancel.setText("CANCEL");
+
+        edit.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        edit.setText("EDIT");
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addComponent(crudPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(simpanBtn)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
-                        .addComponent(deleteBtn))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(editBtn)
+                        .addComponent(tambah)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(refreshBtn)))
-                .addContainerGap())
+                        .addComponent(cancel))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(refreshBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(simpanBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(deleteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(91, 91, 91)))
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGap(30, 30, 30)
+                                .addComponent(cancelBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(hapus)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(edit)))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(crudPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(simpanBtn)
-                    .addComponent(deleteBtn))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(refreshBtn)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cancelBtn)
+                            .addComponent(simpanBtn))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(tambah)
+                            .addComponent(cancel))
+                        .addGap(67, 67, 67)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(editBtn)
-                    .addComponent(refreshBtn))
-                .addContainerGap())
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(hapus, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(edit, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(editBtn, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(deleteBtn, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGap(10, 10, 10))
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -576,9 +719,7 @@ public class BarangF extends javax.swing.JFrame {
                 .addComponent(tablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(imgPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -626,7 +767,7 @@ public class BarangF extends javax.swing.JFrame {
         //category_id = "";
         //db.rsToComboBox("category", "cat_name", catComboBox);
         String category_name = catCb.getSelectedItem().toString();
-        rs = db.querySelectAll("category", " cat_name = '" + category_name + "' ORDER BY cat_id ASC");
+        rs = db.querySelectAll("category", " cat_name LIKE '%" + category_name + "%' ORDER BY cat_id ASC");
         try {
             while (rs.next()) {
                 //category_id += rs.getString("cat_id");
@@ -639,7 +780,8 @@ public class BarangF extends javax.swing.JFrame {
         }
         //System.out.println(category_id);
         //kat.showStatus();
-        db.closeKoneksi();
+        //db.closeKoneksi();
+        
     }//GEN-LAST:event_catCbActionPerformed
 
     private void browseBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_browseBtnMouseEntered
@@ -743,13 +885,15 @@ public class BarangF extends javax.swing.JFrame {
             //System.out.println("Salah pilih File");
         }
 
-
+        catCb.requestFocus();
     }//GEN-LAST:event_browseBtnActionPerformed
 
     private void tabelBarangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelBarangMouseClicked
         simpanBtn.setEnabled(false);
         editBtn.setEnabled(true);
         deleteBtn.setEnabled(true);
+        idTextField.setEnabled(false);
+        cancelBtn.setEnabled(true);
         getImageFromDatabase();
         String idTemp = String.valueOf(tabelBarang.getValueAt(tabelBarang.getSelectedRow(), 0));
         idTextField.setText(idTemp);
@@ -796,7 +940,7 @@ public class BarangF extends javax.swing.JFrame {
                 //INSERT INTO `product` (`prod_id`, `prod_code`, `product`, `cat_id`, `image`, `descr`) VALUES (NULL, NULL, 'Quaker oat', '1', NULL, NULL);
                 String[] kolom = {"prod_code", "product", "cat_id", "descr"};
                 String description = "";
-                if (!description.isEmpty()) {
+                if (!descrTa.getText().isEmpty()) {
                     description = descrTa.getText();
                 } else {
                     description = "No Description";
@@ -804,17 +948,46 @@ public class BarangF extends javax.swing.JFrame {
                 String[] isi = {codeTf.getText(), nameTf.getText(), kat.getCatId(), description};
 
                 System.out.println(db.queryInsert("product", kolom, isi));
+                notifPush("Success", "Data Berhasil ditambahkan", TelegraphType.NOTIFICATION_DONE, 3000);
+            } else {
+                String description = "";
+                if (!descrTa.getText().isEmpty()) {
+                    description = descrTa.getText();
+                } else {
+                    description = "No Description";
+                }
+                String INSERT_PICTURE = "INSERT INTO product(prod_code, product, cat_id, image, descr) values (?, ?, ?, ?, ?)";
+
+                FileInputStream fis = null;
+                PreparedStatement ps = null;
+                try {                    
+                    Connection conn = db.koneksiDatabase();
+                    conn.setAutoCommit(false);
+                    File file = new File(imgTf.getText());
+                    fis = new FileInputStream(file);
+                    ps = conn.prepareStatement(INSERT_PICTURE);
+                    ps.setString(1, codeTf.getText());
+                    ps.setString(2, nameTf.getText());
+                    ps.setString(3, kat.getCatId());
+                    ps.setBinaryStream(4, fis, (int) file.length());
+                    ps.setString(5, description);
+                    ps.executeUpdate();
+                    conn.commit();
+                } catch (FileNotFoundException | SQLException ex) {
+                    Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
-
-        table();
+        
+        clear();
+        showDefaultTable();
     }//GEN-LAST:event_simpanBtnActionPerformed
 
     private void refreshBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshBtnActionPerformed
         ImageIcon a = new ImageIcon("./src/img/Image/noimage.png");
         Image preview = a.getImage();
         ip.setImage(preview);
-        table();
+        showDefaultTable();
     }//GEN-LAST:event_refreshBtnActionPerformed
 
     private void descrTaFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_descrTaFocusGained
@@ -833,33 +1006,95 @@ public class BarangF extends javax.swing.JFrame {
     }//GEN-LAST:event_descrTaFocusLost
 
     private void cariBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cariBtnActionPerformed
-        // TODO add your handling code here:
+        searchData();
     }//GEN-LAST:event_cariBtnActionPerformed
 
     private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
         editBtn.setEnabled(false);
         deleteBtn.setEnabled(false);
         simpanBtn.setEnabled(true);
-    }//GEN-LAST:event_editBtnActionPerformed
+        cancelBtn.setEnabled(false);
 
-    private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
+        idTextField.setEnabled(true);
+
+        String idTempBar = idTextField.getText();
+        String d = descrTa.getText();
+
+        if (nameTf.getText().isEmpty() && nameTf.getText().equals("")) {
+            notifPush("Input Salah", "Nama Produk Kosong", TelegraphType.APPLICATION_WARNING, 3000);
+        } else if (imgTf.getText().isEmpty() && imgTf.getText().equals("")) {
+            //gambar tidak diedit atau ditambahkan
+            System.out.println("Gambar tidak diedit");
+            if (codeTf.getText().isEmpty() && codeTf.getText().equals("")) {
+                code = "NOT SET";
+            } else {
+                code = codeTf.getText();
+            }
+            String[] kolom = {"prod_code", "product", "cat_id", "descr"};
+            String[] isi = {code, nameTf.getText(), kat.getCatId(), descrTa.getText()};
+            db.queryUpdate("product", kolom, isi, "prod_id = " + idTextField.getText());
+            notifPush("Success", "Data Berhasil diedit dengan ID" + idTempBar, TelegraphType.NOTIFICATION_DONE, 3000);
+        } else {
+            //gambar diedit atau ditambahkan
+            System.out.println("Gambar diedit");
+            if (codeTf.getText().isEmpty() && codeTf.getText().equals("")) {
+                code = "NOT SET";
+            } else {
+                code = codeTf.getText();
+            }
+            System.out.println(kat.getCatId() + d);
+
+            String UPDATE_PICTURE = "UPDATE product SET prod_code = ?, product = ?, cat_id = ?, image = ? , descr = ?WHERE prod_id = " + idTempBar;
+
+            FileInputStream fis = null;
+            PreparedStatement ps = null;
+            try {
+                Class.forName("org.gjt.mm.mysql.Driver");
+                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/mbut_inventory", "root", "");
+                conn.setAutoCommit(false);
+                File file = new File(imgTf.getText());
+                fis = new FileInputStream(file);
+                ps = conn.prepareStatement(UPDATE_PICTURE);
+                ps.setString(1, code);
+                ps.setString(2, nameTf.getText());
+                ps.setString(3, kat.getCatId());
+                ps.setBinaryStream(4, fis, (int) file.length());
+                ps.setString(5, d);
+                ps.executeUpdate();
+                conn.commit();
+                notifPush("Success", "Data Berhasil diedit dengan ID" + idTempBar, TelegraphType.NOTIFICATION_DONE, 3000);
+            } catch (FileNotFoundException | SQLException | ClassNotFoundException ex) {
+                Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        codeTf.setText("");
+        idTextField.setText("");
+        idTextField.requestFocus();
+        imgTf.setText("");
+        catCb.setSelectedIndex(0);
+        descrTa.setText("");
+        nameTf.setText("");
         ImageIcon a = new ImageIcon("./src/img/Image/noimage.png");
         Image preview = a.getImage();
         ip.setImage(preview);
-        
+        showDefaultTable();
+    }//GEN-LAST:event_editBtnActionPerformed
+
+    private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
         editBtn.setEnabled(false);
         deleteBtn.setEnabled(false);
-        simpanBtn.setEnabled(true);        
-        
+        simpanBtn.setEnabled(true);
+        cancelBtn.setEnabled(false);
 
         int[] selectedrows = tabelBarang.getSelectedRows();
         sIdBarang = new String[tabelBarang.getSelectedRowCount()];
-        System.out.println("===============");
+        //System.out.println("===============");
         for (int i = 0; i < selectedrows.length; i++) {
             sIdBarang[i] = String.valueOf(tabelBarang.getValueAt(selectedrows[i], 0).toString());
-            System.out.println(sIdBarang[i]);
+            //System.out.println(sIdBarang[i]);
         }
-        System.out.println("===============");
+        //System.out.println("===============");
 
         if (tabelBarang.getSelectedRowCount() == 1) {
             String id = String.valueOf(tabelBarang.getValueAt(tabelBarang.getSelectedRow(), 0));
@@ -882,15 +1117,25 @@ public class BarangF extends javax.swing.JFrame {
                 //return;
             }
         }
-
-        
-        table();
+        codeTf.setText("");
+        idTextField.setText("");
+        idTextField.requestFocus();
+        imgTf.setText("");
+        catCb.setSelectedIndex(0);
+        descrTa.setText("");
+        nameTf.setText("");
+        ImageIcon a = new ImageIcon("./src/img/Image/noimage.png");
+        Image preview = a.getImage();
+        ip.setImage(preview);
+        showDefaultTable();
     }//GEN-LAST:event_deleteBtnActionPerformed
 
     private void descrTaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_descrTaMouseClicked
-        if (!descrTa.getText().isEmpty()) {
-            descrTa.setText(bar.getDescr());
-        }
+//        if (!descrTa.getText().isEmpty()) {
+//            descrTa.setText(bar.getDescr());
+//        }else{
+//            descrTa.setText("No Description");
+//        }
     }//GEN-LAST:event_descrTaMouseClicked
 
     private void tabelBarangMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelBarangMouseReleased
@@ -903,6 +1148,59 @@ public class BarangF extends javax.swing.JFrame {
         }
         System.out.println("===============");
     }//GEN-LAST:event_tabelBarangMouseReleased
+
+    private void cancelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelBtnActionPerformed
+        clear();
+        showDefaultTable();
+    }//GEN-LAST:event_cancelBtnActionPerformed
+
+    private void cariTfKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cariTfKeyReleased
+        searchData();
+    }//GEN-LAST:event_cariTfKeyReleased
+
+    private void addCatBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addCatBtnActionPerformed
+        String tambahCat = JOptionPane.showInputDialog(this, "Input Kategori", "Tambah Kategori", 0);
+        System.out.println("Kategori " + w.toTitleCase(tambahCat) + " ditambahkan");
+        String[] kolom = {"cat_name", "descr"};
+        String[] isi = {w.toTitleCase(tambahCat), "No Description"};
+
+        db.queryInsert("category", kolom, isi);
+        notifPush("Kategori " + w.toTitleCase(tambahCat) + " ditambahkan", "Kategori Berhasil ditambahkan", TelegraphType.NOTIFICATION_DONE, 3000);
+        catCb.addItem(w.toTitleCase(tambahCat));
+        catCb.setSelectedItem(w.toTitleCase(tambahCat));
+    }//GEN-LAST:event_addCatBtnActionPerformed
+
+    private void codeTfKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_codeTfKeyPressed
+        int key = evt.getKeyCode();
+        if (key == KeyEvent.VK_TAB) {
+            nameTf.requestFocus(true);
+        }
+    }//GEN-LAST:event_codeTfKeyPressed
+
+    private void nameTfKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nameTfKeyPressed
+        int key = evt.getKeyCode();
+        if (key == KeyEvent.VK_TAB) {
+            browseBtn.requestFocus(true);
+        }
+    }//GEN-LAST:event_nameTfKeyPressed
+
+    private void descrTaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_descrTaKeyPressed
+        int key = evt.getKeyCode();        
+        if (key == KeyEvent.VK_TAB) {
+            if(simpanBtn.isEnabled()){
+                simpanBtn.requestFocus(true);
+            }else{
+                editBtn.requestFocus(true);
+            }
+        }
+    }//GEN-LAST:event_descrTaKeyPressed
+
+    private void catCbKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_catCbKeyPressed
+        int key = evt.getKeyCode();        
+        if (key == KeyEvent.VK_TAB) {
+            descrTa.requestFocus(true);
+        }        
+    }//GEN-LAST:event_catCbKeyPressed
 
     /**
      * @param args the command line arguments
@@ -950,9 +1248,11 @@ public class BarangF extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addCatBtn;
     private javax.swing.JButton browseBtn;
-    private javax.swing.JTextField carTf;
+    private javax.swing.JLabel cancel;
+    private javax.swing.JButton cancelBtn;
     private javax.swing.JButton cariBtn;
     private javax.swing.JComboBox<String> cariCb;
+    private javax.swing.JTextField cariTf;
     private javax.swing.JComboBox<String> catCb;
     private javax.swing.JLabel catLabel;
     private javax.swing.JLabel codeLabel;
@@ -961,7 +1261,9 @@ public class BarangF extends javax.swing.JFrame {
     private javax.swing.JButton deleteBtn;
     private javax.swing.JTextArea descrTa;
     private javax.swing.JLabel descrlabel;
+    private javax.swing.JLabel edit;
     private javax.swing.JButton editBtn;
+    private javax.swing.JLabel hapus;
     private javax.swing.JLabel idLabel;
     private javax.swing.JTextField idTextField;
     private javax.swing.JLabel imgLabel;
@@ -978,5 +1280,6 @@ public class BarangF extends javax.swing.JFrame {
     private javax.swing.JButton simpanBtn;
     private javax.swing.JTable tabelBarang;
     private javax.swing.JPanel tablePanel;
+    private javax.swing.JLabel tambah;
     // End of variables declaration//GEN-END:variables
 }
