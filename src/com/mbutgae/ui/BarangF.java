@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -68,6 +67,8 @@ public class BarangF extends javax.swing.JFrame {
     String code;
 
     Word w = new Word();
+    FileInputStream fis = null;
+    PreparedStatement ps = null;
 
     /**
      * Creates new form BarangF
@@ -97,41 +98,26 @@ public class BarangF extends javax.swing.JFrame {
         String namaHeader[] = {"ID", "Code", "Product", "Kategori"};
         String query = "SELECT p.prod_id, p.prod_code, p.product , c.cat_name FROM product AS p INNER JOIN category AS c ON p.cat_id = c.cat_id";
         String kon = " WHERE ";
-        if (cariCb.getSelectedIndex() == 0) {
-            kon += "p.prod_id LIKE '%" + cariTf.getText() + "%'";
-        } else if (cariCb.getSelectedIndex() == 1) {
-            kon += "p.prod_code LIKE '%" + cariTf.getText() + "%'";
-        } else if (cariCb.getSelectedIndex() == 2) {
-            kon += "p.product LIKE '%" + cariTf.getText() + "%'";
-        } else if (cariCb.getSelectedIndex() == 3) {
-            kon += "c.cat_name LIKE '%" + cariTf.getText() + "%'";
+        switch (cariCb.getSelectedIndex()) {
+            case 0:
+                kon += "p.prod_id LIKE '%" + cariTf.getText() + "%'";
+                break;
+            case 1:
+                kon += "p.prod_code LIKE '%" + cariTf.getText() + "%'";
+                break;
+            case 2:
+                kon += "p.product LIKE '%" + cariTf.getText() + "%'";
+                break;
+            case 3:
+                kon += "c.cat_name LIKE '%" + cariTf.getText() + "%'";
+                break;
+            default:
+                break;
         }
         System.out.println("" + query + kon);
         //kon += " ORDER BY p.prod_id ASC";
         showDefaultTable(namaHeader, query, kon);
         changeHeader(namaHeader, tabelBarang);
-    }
-
-    public boolean cekInputForm() {
-        boolean simpan = false;
-        boolean cekid;
-        cekid = ((!idTextField.getText().isEmpty()) && (!nameTf.getText().isEmpty()));
-        if (cekid) {
-            bar.setProd_id(idTextField.getText());
-            if (codeTf.getText().isEmpty()) {
-                bar.setProd_code("NO CODE");
-            } else {
-                bar.setProd_code(codeTf.getText());
-            }
-
-            bar.setProduct(nameTf.getText());
-            bar.setCategory(catCb.getSelectedItem().toString());
-            bar.setDescr(descrTa.getText());
-            simpan = true;
-        } else {
-            simpan = false;
-        }
-        return simpan;
     }
 
     public void getImageFromDatabase() {
@@ -175,6 +161,7 @@ public class BarangF extends javax.swing.JFrame {
         rs = db.eksekusiQuery("SELECT p.prod_id, p.prod_code, p.product , c.cat_name FROM product AS p INNER JOIN category AS c ON p.cat_id = c.cat_id ORDER BY prod_id ASC");
         tabelBarang.setModel(new ResultSetTableModel(rs));
         changeHeader(namaHeader, tabelBarang);
+        clear();
     }
 
     public void showDefaultTable(String[] header, String SQL, String kondisi) {
@@ -212,29 +199,6 @@ public class BarangF extends javax.swing.JFrame {
         for (int i = 0; i <= header.length - 1; i++) {
             jt.getColumnModel().getColumn(i).setHeaderValue(header[i]);
         }
-        //jt.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-//        for (int column = 0; column < jt.getColumnCount(); column++) {
-//            TableColumn tableColumn = jt.getColumnModel().getColumn(column);
-//            int preferredWidth = tableColumn.getMinWidth();
-//            int maxWidth = tableColumn.getMaxWidth();
-//
-//            for (int row = 0; row < jt.getRowCount(); row++) {
-//                TableCellRenderer cellRenderer = jt.getCellRenderer(row, column);
-//                Component c = jt.prepareRenderer(cellRenderer, row, column);
-//                int width = c.getPreferredSize().width + jt.getIntercellSpacing().width;
-//                preferredWidth = Math.max(preferredWidth, width);
-//
-//                //  We've exceeded the maximum width, no need to check other rows
-//                if (preferredWidth >= maxWidth) {
-//                    preferredWidth = maxWidth;
-//                    break;
-//                }
-//            }
-//
-//            tableColumn.setPreferredWidth(preferredWidth);
-//        }
-//        //jt.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     }
 // ...
 
@@ -500,6 +464,7 @@ public class BarangF extends javax.swing.JFrame {
         addCatBtn.setFont(new java.awt.Font("Segoe UI Light", 1, 14)); // NOI18N
         addCatBtn.setForeground(crudPanel.getBackground());
         addCatBtn.setText("+");
+        addCatBtn.setToolTipText("Tambah Kategori");
         addCatBtn.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 102)));
         addCatBtn.setContentAreaFilled(false);
         addCatBtn.setOpaque(browseBtn.isOpaque());
@@ -657,7 +622,7 @@ public class BarangF extends javax.swing.JFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addComponent(crudPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(tambah)
@@ -682,7 +647,7 @@ public class BarangF extends javax.swing.JFrame {
                         .addComponent(hapus)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(edit)))
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -781,7 +746,7 @@ public class BarangF extends javax.swing.JFrame {
         //System.out.println(category_id);
         //kat.showStatus();
         //db.closeKoneksi();
-        
+
     }//GEN-LAST:event_catCbActionPerformed
 
     private void browseBtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_browseBtnMouseEntered
@@ -930,27 +895,24 @@ public class BarangF extends javax.swing.JFrame {
     }//GEN-LAST:event_tabelBarangMouseClicked
 
     private void simpanBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simpanBtnActionPerformed
-        String categoryx = kat.getCatId();
         System.out.println(kat.getCatId());
+        String description = "";
         if (nameTf.getText().isEmpty()) {
             notifPush("Data Kosong", "Isikan data dengan benar", TelegraphType.NOTIFICATION_WARNING, 3000);
         } else {
             if (imgTf.getText().isEmpty()) {
-
-                //INSERT INTO `product` (`prod_id`, `prod_code`, `product`, `cat_id`, `image`, `descr`) VALUES (NULL, NULL, 'Quaker oat', '1', NULL, NULL);
                 String[] kolom = {"prod_code", "product", "cat_id", "descr"};
-                String description = "";
+
                 if (!descrTa.getText().isEmpty()) {
-                    description = descrTa.getText();
+                    description += descrTa.getText();
                 } else {
-                    description = "No Description";
+                    description += "No Description";
                 }
                 String[] isi = {codeTf.getText(), nameTf.getText(), kat.getCatId(), description};
 
                 System.out.println(db.queryInsert("product", kolom, isi));
                 notifPush("Success", "Data Berhasil ditambahkan", TelegraphType.NOTIFICATION_DONE, 3000);
             } else {
-                String description = "";
                 if (!descrTa.getText().isEmpty()) {
                     description = descrTa.getText();
                 } else {
@@ -958,9 +920,7 @@ public class BarangF extends javax.swing.JFrame {
                 }
                 String INSERT_PICTURE = "INSERT INTO product(prod_code, product, cat_id, image, descr) values (?, ?, ?, ?, ?)";
 
-                FileInputStream fis = null;
-                PreparedStatement ps = null;
-                try {                    
+                try {
                     Connection conn = db.koneksiDatabase();
                     conn.setAutoCommit(false);
                     File file = new File(imgTf.getText());
@@ -978,7 +938,7 @@ public class BarangF extends javax.swing.JFrame {
                 }
             }
         }
-        
+
         clear();
         showDefaultTable();
     }//GEN-LAST:event_simpanBtnActionPerformed
@@ -991,11 +951,11 @@ public class BarangF extends javax.swing.JFrame {
     }//GEN-LAST:event_refreshBtnActionPerformed
 
     private void descrTaFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_descrTaFocusGained
-        if (!descrTa.getText().isEmpty()) {
-            descrTa.setText(bar.getDescr());
-        } else {
-            descrTa.setText("");
-        }
+//        if (!descrTa.getText().isEmpty()) {
+//            descrTa.setText(bar.getDescr());
+//        } else {
+//            descrTa.setText("");
+//        }
 
     }//GEN-LAST:event_descrTaFocusGained
 
@@ -1046,11 +1006,9 @@ public class BarangF extends javax.swing.JFrame {
 
             String UPDATE_PICTURE = "UPDATE product SET prod_code = ?, product = ?, cat_id = ?, image = ? , descr = ?WHERE prod_id = " + idTempBar;
 
-            FileInputStream fis = null;
-            PreparedStatement ps = null;
+            
             try {
-                Class.forName("org.gjt.mm.mysql.Driver");
-                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/mbut_inventory", "root", "");
+                Connection conn = db.koneksiDatabase();
                 conn.setAutoCommit(false);
                 File file = new File(imgTf.getText());
                 fis = new FileInputStream(file);
@@ -1063,7 +1021,7 @@ public class BarangF extends javax.swing.JFrame {
                 ps.executeUpdate();
                 conn.commit();
                 notifPush("Success", "Data Berhasil diedit dengan ID" + idTempBar, TelegraphType.NOTIFICATION_DONE, 3000);
-            } catch (FileNotFoundException | SQLException | ClassNotFoundException ex) {
+            } catch (FileNotFoundException | SQLException ex) {
                 Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -1159,7 +1117,8 @@ public class BarangF extends javax.swing.JFrame {
     }//GEN-LAST:event_cariTfKeyReleased
 
     private void addCatBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addCatBtnActionPerformed
-        String tambahCat = JOptionPane.showInputDialog(this, "Input Kategori", "Tambah Kategori", 0);
+        String tambahCat = JOptionPane.showInputDialog(null, "Input Kategori", "Tambah Kategori", JOptionPane.INFORMATION_MESSAGE);
+        
         System.out.println("Kategori " + w.toTitleCase(tambahCat) + " ditambahkan");
         String[] kolom = {"cat_name", "descr"};
         String[] isi = {w.toTitleCase(tambahCat), "No Description"};
@@ -1185,21 +1144,21 @@ public class BarangF extends javax.swing.JFrame {
     }//GEN-LAST:event_nameTfKeyPressed
 
     private void descrTaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_descrTaKeyPressed
-        int key = evt.getKeyCode();        
+        int key = evt.getKeyCode();
         if (key == KeyEvent.VK_TAB) {
-            if(simpanBtn.isEnabled()){
+            if (simpanBtn.isEnabled()) {
                 simpanBtn.requestFocus(true);
-            }else{
+            } else {
                 editBtn.requestFocus(true);
             }
         }
     }//GEN-LAST:event_descrTaKeyPressed
 
     private void catCbKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_catCbKeyPressed
-        int key = evt.getKeyCode();        
+        int key = evt.getKeyCode();
         if (key == KeyEvent.VK_TAB) {
             descrTa.requestFocus(true);
-        }        
+        }
     }//GEN-LAST:event_catCbKeyPressed
 
     /**
