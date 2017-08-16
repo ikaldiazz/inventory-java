@@ -6,13 +6,25 @@
 package com.mbutgae.ui;
 
 import com.mbut.img.ImagePanel;
-import com.mbutgae.db.DatabaseConn;
-import com.mbutgae.db.Parameter;
 import com.mbutgae.db.ResultSetTableModel;
 import com.mbutgae.misc.Iconic;
 import com.mbutgae.misc.Word;
 import com.mbutgae.obj.Barang;
 import com.mbutgae.obj.Kategori;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.mbutgae.db.DatabaseConn;
+import com.mbutgae.db.Parameter;
+import java.awt.Desktop;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.swing.JFileChooser;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Image;
@@ -61,7 +73,7 @@ public class BarangF extends javax.swing.JFrame {
     static String userhome = System.getProperty("user.home") + File.separator + "Pictures";
 
     ImagePanel ip = new ImagePanel();
-    Icon cari = setIcon("./src/icon/windows/metro/black/search.png", 26);
+    Icon cari = setIcon("./src/icon/windows/metro/black/download.png", 26);
 
     String[] sIdBarang;
     String code;
@@ -84,6 +96,8 @@ public class BarangF extends javax.swing.JFrame {
 
         showDefaultTable();
         codeTf.requestFocus();
+        
+        this.setLocationRelativeTo(null);
     }
 
     public Icon setIcon(String path, int size) {
@@ -198,6 +212,147 @@ public class BarangF extends javax.swing.JFrame {
 
         for (int i = 0; i <= header.length - 1; i++) {
             jt.getColumnModel().getColumn(i).setHeaderValue(header[i]);
+        }
+    }
+
+    public void printPdf() {
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String random = Long.toHexString(Double.doubleToLongBits(Math.random()));
+        JFileChooser dialog = new JFileChooser();
+        int dialogResult = dialog.showSaveDialog(null);
+        if (dialogResult == JFileChooser.APPROVE_OPTION) {
+            try {
+                String filePath = dialog.getSelectedFile().getPath();
+                filePath += "-";
+                filePath += date + "-";
+                filePath += random;
+                filePath += ".pdf";
+
+                String[] kolom = {"prod_id", "prod_code", "product", "descr"};
+                /* Define the SQL query */
+                ResultSet query_set = db.querySelect(kolom, "product");
+                /* Step-2: Initialize PDF documents - logical objects */
+                Document my_pdf_report = new Document();
+                PdfWriter.getInstance(my_pdf_report, new FileOutputStream(filePath));
+                my_pdf_report.open();
+                //we have four columns in our table
+                PdfPTable my_report_table = new PdfPTable(kolom.length);
+                //create a cell object
+                PdfPCell table_cell;
+
+                for (String kolom1 : kolom) {
+                    table_cell = new PdfPCell(new Phrase(kolom1));
+                    my_report_table.addCell(table_cell);
+                }
+
+                while (query_set.next()) {
+                    for (String kolom1 : kolom) {
+                        table_cell = new PdfPCell(new Phrase(query_set.getString(kolom1)));
+                        my_report_table.addCell(table_cell);
+                    }
+                }
+                /* Attach report table to PDF */
+                my_pdf_report.add(my_report_table);
+                my_pdf_report.close();
+
+                //Open the report
+                File pdfFile = new File(filePath);
+                if (pdfFile.exists()) {
+
+                    if (Desktop.isDesktopSupported()) {
+                        Desktop.getDesktop().open(pdfFile);
+                    } else {
+                        System.out.println("Awt Desktop is not supported!");
+                    }
+
+                } else {
+                    System.out.println("File is not exists!");
+                }
+
+                System.out.println("Done");
+
+                /* Close all DB related objects */
+            } catch (DocumentException | SQLException | IOException ex) {
+                Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+    }
+
+    public void printPdf(String[] kolom, String tabel) {
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String random = Long.toHexString(Double.doubleToLongBits(Math.random()));
+        JFileChooser dialog = new JFileChooser();
+        int dialogResult = dialog.showSaveDialog(null);
+        if (dialogResult == JFileChooser.APPROVE_OPTION) {
+            try {
+                String filePath = dialog.getSelectedFile().getPath();
+                filePath += "-";
+                filePath += date + "-";
+                filePath += random;
+                filePath += ".pdf";
+
+                //String[] kolom = {"prod_id", "prod_code", "product", "descr"};
+                /* Define the SQL query */
+                ResultSet query_set = db.querySelect(kolom, tabel);
+                /* Step-2: Initialize PDF documents - logical objects */
+                Document pdfDoc = new Document();
+                pdfDoc.setPageSize(PageSize.A4);
+                
+                //my_pdf_report.setMargins(TOP_ALIGNMENT, TOP_ALIGNMENT, TOP_ALIGNMENT, TOP_ALIGNMENT);
+                //my_pdf_report.setMargins(10, 10, 10, 10);
+               
+                PdfWriter.getInstance(pdfDoc, new FileOutputStream(filePath));
+                pdfDoc.open();
+                //we have four columns in our table
+                PdfPTable tablePdf = new PdfPTable(kolom.length);
+                
+                tablePdf.setWidths(new int[]{1, 1, 2});
+                //create a cell object
+                PdfPCell cell;
+
+                for (String kolom1 : kolom) {
+                    cell = new PdfPCell(new Phrase(kolom1));
+                    tablePdf.addCell(cell);
+                }
+
+                while (query_set.next()) {
+                    for (String kolom1 : kolom) {
+                        cell = new PdfPCell(new Phrase(query_set.getString(kolom1)));
+                        tablePdf.addCell(cell);
+                    }
+                }
+                /* Attach report table to PDF */
+                pdfDoc.add(tablePdf);
+                pdfDoc.close();
+
+                int result = JOptionPane.showConfirmDialog(null,
+                        "File created successfully. Do you want to open it?", "Open File", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    //Open the report
+                    File pdfFile = new File(filePath);
+                    if (pdfFile.exists()) {
+
+                        if (Desktop.isDesktopSupported()) {
+                            Desktop.getDesktop().open(pdfFile);
+                        } else {
+                            System.out.println("Awt Desktop is not supported!");
+                        }
+
+                    } else {
+                        System.out.println("File is not exists!");
+                    }
+                }else{
+                    
+                }
+
+                System.out.println("Done");
+
+                /* Close all DB related objects */
+            } catch (DocumentException | SQLException | IOException ex) {
+                Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
         }
     }
 // ...
@@ -966,7 +1121,9 @@ public class BarangF extends javax.swing.JFrame {
     }//GEN-LAST:event_descrTaFocusLost
 
     private void cariBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cariBtnActionPerformed
-        searchData();
+        //searchData();
+        String [] kolom={"prod_id", "prod_code","product"};
+        printPdf(kolom, "product");
     }//GEN-LAST:event_cariBtnActionPerformed
 
     private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
@@ -1006,7 +1163,6 @@ public class BarangF extends javax.swing.JFrame {
 
             String UPDATE_PICTURE = "UPDATE product SET prod_code = ?, product = ?, cat_id = ?, image = ? , descr = ?WHERE prod_id = " + idTempBar;
 
-            
             try {
                 Connection conn = db.koneksiDatabase();
                 conn.setAutoCommit(false);
@@ -1118,7 +1274,7 @@ public class BarangF extends javax.swing.JFrame {
 
     private void addCatBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addCatBtnActionPerformed
         String tambahCat = JOptionPane.showInputDialog(null, "Input Kategori", "Tambah Kategori", JOptionPane.INFORMATION_MESSAGE);
-        
+
         System.out.println("Kategori " + w.toTitleCase(tambahCat) + " ditambahkan");
         String[] kolom = {"cat_name", "descr"};
         String[] isi = {w.toTitleCase(tambahCat), "No Description"};
