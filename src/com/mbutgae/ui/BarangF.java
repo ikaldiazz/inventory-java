@@ -96,267 +96,11 @@ public class BarangF extends javax.swing.JFrame {
 
         showDefaultTable();
         codeTf.requestFocus();
-        
+
         this.setLocationRelativeTo(null);
     }
 
-    public Icon setIcon(String path, int size) {
-        ImageIcon icon = new ImageIcon(path);
-        Image img = icon.getImage();
-        Image newimg = img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH);
-        icon = new ImageIcon(newimg);
-        return icon;
-    }
-
-    public void searchData() {
-        String namaHeader[] = {"ID", "Code", "Product", "Kategori"};
-        String query = "SELECT p.prod_id, p.prod_code, p.product , c.cat_name FROM product AS p INNER JOIN category AS c ON p.cat_id = c.cat_id";
-        String kon = " WHERE ";
-        switch (cariCb.getSelectedIndex()) {
-            case 0:
-                kon += "p.prod_id LIKE '%" + cariTf.getText() + "%'";
-                break;
-            case 1:
-                kon += "p.prod_code LIKE '%" + cariTf.getText() + "%'";
-                break;
-            case 2:
-                kon += "p.product LIKE '%" + cariTf.getText() + "%'";
-                break;
-            case 3:
-                kon += "c.cat_name LIKE '%" + cariTf.getText() + "%'";
-                break;
-            default:
-                break;
-        }
-        System.out.println("" + query + kon);
-        //kon += " ORDER BY p.prod_id ASC";
-        showDefaultTable(namaHeader, query, kon);
-        changeHeader(namaHeader, tabelBarang);
-    }
-
-    public void getImageFromDatabase() {
-        String idTemp = String.valueOf(tabelBarang.getValueAt(tabelBarang.getSelectedRow(), 0));
-        System.out.println("ID Produst Temp:" + idTemp);
-        String[] kolomGambar = {"image"};
-        byte[] imageBytes = null;
-        rs = db.fcSelectCommand(kolomGambar, "product", "prod_id = " + idTemp);
-        try {
-            if (rs.next()) {
-                Blob imageBlob = rs.getBlob(1);
-                imageBytes = imageBlob.getBytes(1, (int) imageBlob.length());
-            }
-            Image preview = byteArrayToImage(imageBytes);
-            ip.setImage(preview);
-            db.closeKoneksi();
-
-        } catch (SQLException ex) {
-            Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NullPointerException ex) {
-            //Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);            
-            ImageIcon a = new ImageIcon("./src/img/Image/noimage.png");
-            Image preview = a.getImage();
-            ip.setImage(preview);
-        }
-    }
-
-    public static BufferedImage byteArrayToImage(byte[] bytes) {
-        BufferedImage bufferedImage = null;
-        try {
-            InputStream inputStream = new ByteArrayInputStream(bytes);
-            bufferedImage = ImageIO.read(inputStream);
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-        return bufferedImage;
-    }
-
-    public void showDefaultTable() {
-        String namaHeader[] = {"ID", "Code", "Product", "Kategori"};
-        rs = db.eksekusiQuery("SELECT p.prod_id, p.prod_code, p.product , c.cat_name FROM product AS p INNER JOIN category AS c ON p.cat_id = c.cat_id ORDER BY prod_id ASC");
-        tabelBarang.setModel(new ResultSetTableModel(rs));
-        changeHeader(namaHeader, tabelBarang);
-        clear();
-    }
-
-    public void showDefaultTable(String[] header, String SQL, String kondisi) {
-        String namaHeader[] = header;
-        rs = db.eksekusiQuery(SQL + kondisi + " ORDER BY prod_id ASC");
-        tabelBarang.setModel(new ResultSetTableModel(rs));
-        changeHeader(namaHeader, tabelBarang);
-    }
-
-    public void notifPush(String title, String message, TelegraphType type, int duration) {
-        Telegraph tele = new Telegraph(title, message, type, WindowPosition.BOTTOMLEFT, duration);
-        TelegraphQueue q = new TelegraphQueue();
-        q.add(tele);
-    }
-
-    public void clear() {
-        simpanBtn.setEnabled(true);
-        editBtn.setEnabled(false);
-        deleteBtn.setEnabled(false);
-        cancelBtn.setEnabled(false);
-        codeTf.setText("");
-        idTextField.setText("");
-        idTextField.requestFocus();
-        imgTf.setText("");
-        catCb.setSelectedIndex(0);
-        descrTa.setText("No Description");
-        nameTf.setText("");
-        ImageIcon a = new ImageIcon("./src/img/Image/noimage.png");
-        Image preview = a.getImage();
-        ip.setImage(preview);
-    }
-
-    public void changeHeader(String[] header, JTable jt) {
-
-        for (int i = 0; i <= header.length - 1; i++) {
-            jt.getColumnModel().getColumn(i).setHeaderValue(header[i]);
-        }
-    }
-
-    public void printPdf() {
-        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        String random = Long.toHexString(Double.doubleToLongBits(Math.random()));
-        JFileChooser dialog = new JFileChooser();
-        int dialogResult = dialog.showSaveDialog(null);
-        if (dialogResult == JFileChooser.APPROVE_OPTION) {
-            try {
-                String filePath = dialog.getSelectedFile().getPath();
-                filePath += "-";
-                filePath += date + "-";
-                filePath += random;
-                filePath += ".pdf";
-
-                String[] kolom = {"prod_id", "prod_code", "product", "descr"};
-                /* Define the SQL query */
-                ResultSet query_set = db.querySelect(kolom, "product");
-                /* Step-2: Initialize PDF documents - logical objects */
-                Document my_pdf_report = new Document();
-                PdfWriter.getInstance(my_pdf_report, new FileOutputStream(filePath));
-                my_pdf_report.open();
-                //we have four columns in our table
-                PdfPTable my_report_table = new PdfPTable(kolom.length);
-                //create a cell object
-                PdfPCell table_cell;
-
-                for (String kolom1 : kolom) {
-                    table_cell = new PdfPCell(new Phrase(kolom1));
-                    my_report_table.addCell(table_cell);
-                }
-
-                while (query_set.next()) {
-                    for (String kolom1 : kolom) {
-                        table_cell = new PdfPCell(new Phrase(query_set.getString(kolom1)));
-                        my_report_table.addCell(table_cell);
-                    }
-                }
-                /* Attach report table to PDF */
-                my_pdf_report.add(my_report_table);
-                my_pdf_report.close();
-
-                //Open the report
-                File pdfFile = new File(filePath);
-                if (pdfFile.exists()) {
-
-                    if (Desktop.isDesktopSupported()) {
-                        Desktop.getDesktop().open(pdfFile);
-                    } else {
-                        System.out.println("Awt Desktop is not supported!");
-                    }
-
-                } else {
-                    System.out.println("File is not exists!");
-                }
-
-                System.out.println("Done");
-
-                /* Close all DB related objects */
-            } catch (DocumentException | SQLException | IOException ex) {
-                Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        }
-    }
-
-    public void printPdf(String[] kolom, String tabel) {
-        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        String random = Long.toHexString(Double.doubleToLongBits(Math.random()));
-        JFileChooser dialog = new JFileChooser();
-        int dialogResult = dialog.showSaveDialog(null);
-        if (dialogResult == JFileChooser.APPROVE_OPTION) {
-            try {
-                String filePath = dialog.getSelectedFile().getPath();
-                filePath += "-";
-                filePath += date + "-";
-                filePath += random;
-                filePath += ".pdf";
-
-                //String[] kolom = {"prod_id", "prod_code", "product", "descr"};
-                /* Define the SQL query */
-                ResultSet query_set = db.querySelect(kolom, tabel);
-                /* Step-2: Initialize PDF documents - logical objects */
-                Document pdfDoc = new Document();
-                pdfDoc.setPageSize(PageSize.A4);
-                
-                //my_pdf_report.setMargins(TOP_ALIGNMENT, TOP_ALIGNMENT, TOP_ALIGNMENT, TOP_ALIGNMENT);
-                //my_pdf_report.setMargins(10, 10, 10, 10);
-               
-                PdfWriter.getInstance(pdfDoc, new FileOutputStream(filePath));
-                pdfDoc.open();
-                //we have four columns in our table
-                PdfPTable tablePdf = new PdfPTable(kolom.length);
-                
-                tablePdf.setWidths(new int[]{1, 1, 2});
-                //create a cell object
-                PdfPCell cell;
-
-                for (String kolom1 : kolom) {
-                    cell = new PdfPCell(new Phrase(kolom1));
-                    tablePdf.addCell(cell);
-                }
-
-                while (query_set.next()) {
-                    for (String kolom1 : kolom) {
-                        cell = new PdfPCell(new Phrase(query_set.getString(kolom1)));
-                        tablePdf.addCell(cell);
-                    }
-                }
-                /* Attach report table to PDF */
-                pdfDoc.add(tablePdf);
-                pdfDoc.close();
-
-                int result = JOptionPane.showConfirmDialog(null,
-                        "File created successfully. Do you want to open it?", "Open File", JOptionPane.YES_NO_OPTION);
-                if (result == JOptionPane.YES_OPTION) {
-                    //Open the report
-                    File pdfFile = new File(filePath);
-                    if (pdfFile.exists()) {
-
-                        if (Desktop.isDesktopSupported()) {
-                            Desktop.getDesktop().open(pdfFile);
-                        } else {
-                            System.out.println("Awt Desktop is not supported!");
-                        }
-
-                    } else {
-                        System.out.println("File is not exists!");
-                    }
-                }else{
-                    
-                }
-
-                System.out.println("Done");
-
-                /* Close all DB related objects */
-            } catch (DocumentException | SQLException | IOException ex) {
-                Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        }
-    }
 // ...
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -454,8 +198,7 @@ public class BarangF extends javax.swing.JFrame {
         });
 
         cariCb.setFont(new java.awt.Font("Segoe UI Emoji", 0, 14)); // NOI18N
-        cariCb.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID", "PRODUCT", "NAME", "CATEGORY" }));
-        cariCb.setSelectedIndex(2);
+        cariCb.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID", "CODE", "PRODUCT", "CATEGORY" }));
 
         cariBtn.setBackground(new java.awt.Color(102, 255, 204));
         cariBtn.setIcon(cari);
@@ -716,7 +459,7 @@ public class BarangF extends javax.swing.JFrame {
                 .addGap(14, 14, 14))
         );
 
-        simpanBtn.setBackground(new java.awt.Color(102, 255, 204));
+        simpanBtn.setBackground(new java.awt.Color(204, 255, 204));
         simpanBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/metro/black/add.png"))); // NOI18N
         simpanBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -724,7 +467,7 @@ public class BarangF extends javax.swing.JFrame {
             }
         });
 
-        deleteBtn.setBackground(new java.awt.Color(102, 255, 204));
+        deleteBtn.setBackground(new java.awt.Color(204, 255, 204));
         deleteBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/metro/black/delete.png"))); // NOI18N
         deleteBtn.setEnabled(false);
         deleteBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -733,7 +476,7 @@ public class BarangF extends javax.swing.JFrame {
             }
         });
 
-        editBtn.setBackground(new java.awt.Color(102, 255, 204));
+        editBtn.setBackground(new java.awt.Color(204, 255, 204));
         editBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/metro/black/edit.png"))); // NOI18N
         editBtn.setEnabled(false);
         editBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -742,7 +485,7 @@ public class BarangF extends javax.swing.JFrame {
             }
         });
 
-        refreshBtn.setBackground(new java.awt.Color(102, 255, 204));
+        refreshBtn.setBackground(new java.awt.Color(204, 255, 204));
         refreshBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/metro/black/refresh.png"))); // NOI18N
         refreshBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -750,7 +493,7 @@ public class BarangF extends javax.swing.JFrame {
             }
         });
 
-        cancelBtn.setBackground(new java.awt.Color(102, 255, 204));
+        cancelBtn.setBackground(new java.awt.Color(204, 255, 204));
         cancelBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/windows/metro/black/cancel.png"))); // NOI18N
         cancelBtn.setEnabled(false);
         cancelBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -1025,7 +768,6 @@ public class BarangF extends javax.swing.JFrame {
         catCb.setSelectedItem(kat.getCatName());
         kat.showStatus();
 
-        String[] kolom = {"descr"};
         String deskripsi = "";
         rs = db.querySelectAll("product", "prod_id = " + idTemp);
 
@@ -1122,7 +864,7 @@ public class BarangF extends javax.swing.JFrame {
 
     private void cariBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cariBtnActionPerformed
         //searchData();
-        String [] kolom={"prod_id", "prod_code","product"};
+        String[] kolom = {"prod_id", "prod_code", "product"};
         printPdf(kolom, "product");
     }//GEN-LAST:event_cariBtnActionPerformed
 
@@ -1359,6 +1101,262 @@ public class BarangF extends javax.swing.JFrame {
             }
         });
     }
+
+    public Icon setIcon(String path, int size) {
+        ImageIcon icon = new ImageIcon(path);
+        Image img = icon.getImage();
+        Image newimg = img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH);
+        icon = new ImageIcon(newimg);
+        return icon;
+    }
+
+    public void searchData() {
+        String namaHeader[] = {"ID", "Code", "Product", "Kategori"};
+        String query = "SELECT p.prod_id, p.prod_code, p.product , c.cat_name FROM product AS p INNER JOIN category AS c ON p.cat_id = c.cat_id";
+        String kon = " WHERE ";
+        switch (cariCb.getSelectedIndex()) {
+            case 0:
+                kon += "p.prod_id LIKE '%" + cariTf.getText() + "%'";
+                break;
+            case 1:
+                kon += "p.prod_code LIKE '%" + cariTf.getText() + "%'";
+                break;
+            case 2:
+                kon += "p.product LIKE '%" + cariTf.getText() + "%'";
+                break;
+            case 3:
+                kon += "c.cat_name LIKE '%" + cariTf.getText() + "%'";
+                break;
+            default:
+                break;
+        }
+        System.out.println("" + query + kon);
+        //kon += " ORDER BY p.prod_id ASC";
+        showDefaultTable(namaHeader, query, kon);
+        changeHeader(namaHeader, tabelBarang);
+    }
+
+    public void showDefaultTable() {
+        String namaHeader[] = {"ID", "Code", "Product", "Kategori"};
+        rs = db.eksekusiQuery("SELECT p.prod_id, p.prod_code, p.product , c.cat_name FROM product AS p INNER JOIN category AS c ON p.cat_id = c.cat_id ORDER BY prod_id ASC");
+        tabelBarang.setModel(new ResultSetTableModel(rs));
+        changeHeader(namaHeader, tabelBarang);
+        clear();
+    }
+
+    public void showDefaultTable(String[] header, String SQL, String kondisi) {
+        String namaHeader[] = header;
+        rs = db.eksekusiQuery(SQL + kondisi + " ORDER BY prod_id ASC");
+        tabelBarang.setModel(new ResultSetTableModel(rs));
+        changeHeader(namaHeader, tabelBarang);
+    }
+
+    public void getImageFromDatabase() {
+        String idTemp = String.valueOf(tabelBarang.getValueAt(tabelBarang.getSelectedRow(), 0));
+        System.out.println("ID Produst Temp:" + idTemp);
+        String[] kolomGambar = {"image"};
+        byte[] imageBytes = null;
+        rs = db.fcSelectCommand(kolomGambar, "product", "prod_id = " + idTemp);
+        try {
+            if (rs.next()) {
+                Blob imageBlob = rs.getBlob(1);
+                imageBytes = imageBlob.getBytes(1, (int) imageBlob.length());
+            }
+            Image preview = byteArrayToImage(imageBytes);
+            ip.setImage(preview);
+            db.closeKoneksi();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NullPointerException ex) {
+            //Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);            
+            ImageIcon a = new ImageIcon("./src/img/Image/noimage.png");
+            Image preview = a.getImage();
+            ip.setImage(preview);
+        }
+    }
+
+    public static BufferedImage byteArrayToImage(byte[] bytes) {
+        BufferedImage bufferedImage = null;
+        try {
+            InputStream inputStream = new ByteArrayInputStream(bytes);
+            bufferedImage = ImageIO.read(inputStream);
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return bufferedImage;
+    }
+
+    public void notifPush(String title, String message, TelegraphType type, int duration) {
+        Telegraph tele = new Telegraph(title, message, type, WindowPosition.BOTTOMLEFT, duration);
+        TelegraphQueue q = new TelegraphQueue();
+        q.add(tele);
+    }
+
+    public void clear() {
+        simpanBtn.setEnabled(true);
+        editBtn.setEnabled(false);
+        deleteBtn.setEnabled(false);
+        cancelBtn.setEnabled(false);
+        codeTf.setText("");
+        idTextField.setText("");
+        idTextField.requestFocus();
+        imgTf.setText("");
+        catCb.setSelectedIndex(0);
+        descrTa.setText("No Description");
+        nameTf.setText("");
+        ImageIcon a = new ImageIcon("./src/img/Image/noimage.png");
+        Image preview = a.getImage();
+        ip.setImage(preview);
+    }
+
+    public void changeHeader(String[] header, JTable jt) {
+
+        for (int i = 0; i <= header.length - 1; i++) {
+            jt.getColumnModel().getColumn(i).setHeaderValue(header[i]);
+        }
+    }
+
+    public void printPdf() {
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String random = Long.toHexString(Double.doubleToLongBits(Math.random()));
+        JFileChooser dialog = new JFileChooser();
+        int dialogResult = dialog.showSaveDialog(null);
+        if (dialogResult == JFileChooser.APPROVE_OPTION) {
+            try {
+                String filePath = dialog.getSelectedFile().getPath();
+                filePath += "-";
+                filePath += date + "-";
+                filePath += random;
+                filePath += ".pdf";
+
+                String[] kolom = {"prod_id", "prod_code", "product", "descr"};
+                /* Define the SQL query */
+                ResultSet query_set = db.querySelect(kolom, "product");
+                /* Step-2: Initialize PDF documents - logical objects */
+                Document my_pdf_report = new Document();
+                PdfWriter.getInstance(my_pdf_report, new FileOutputStream(filePath));
+                my_pdf_report.open();
+                //we have four columns in our table
+                PdfPTable my_report_table = new PdfPTable(kolom.length);
+                //create a cell object
+                PdfPCell table_cell;
+
+                for (String kolom1 : kolom) {
+                    table_cell = new PdfPCell(new Phrase(kolom1));
+                    my_report_table.addCell(table_cell);
+                }
+
+                while (query_set.next()) {
+                    for (String kolom1 : kolom) {
+                        table_cell = new PdfPCell(new Phrase(query_set.getString(kolom1)));
+                        my_report_table.addCell(table_cell);
+                    }
+                }
+                /* Attach report table to PDF */
+                my_pdf_report.add(my_report_table);
+                my_pdf_report.close();
+
+                //Open the report
+                File pdfFile = new File(filePath);
+                if (pdfFile.exists()) {
+
+                    if (Desktop.isDesktopSupported()) {
+                        Desktop.getDesktop().open(pdfFile);
+                    } else {
+                        System.out.println("Awt Desktop is not supported!");
+                    }
+
+                } else {
+                    System.out.println("File is not exists!");
+                }
+
+                System.out.println("Done");
+
+                /* Close all DB related objects */
+            } catch (DocumentException | SQLException | IOException ex) {
+                Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+    }
+
+    public void printPdf(String[] kolom, String tabel) {
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String random = Long.toHexString(Double.doubleToLongBits(Math.random()));
+        JFileChooser dialog = new JFileChooser();
+        int dialogResult = dialog.showSaveDialog(null);
+        if (dialogResult == JFileChooser.APPROVE_OPTION) {
+            try {
+                String filePath = dialog.getSelectedFile().getPath();
+                filePath += "-";
+                filePath += date + "-";
+                filePath += random;
+                filePath += ".pdf";
+
+                //String[] kolom = {"prod_id", "prod_code", "product", "descr"};
+                /* Define the SQL query */
+                ResultSet query_set = db.querySelect(kolom, tabel);
+                /* Step-2: Initialize PDF documents - logical objects */
+                Document pdfDoc = new Document();
+                pdfDoc.setPageSize(PageSize.A4);
+
+                //my_pdf_report.setMargins(TOP_ALIGNMENT, TOP_ALIGNMENT, TOP_ALIGNMENT, TOP_ALIGNMENT);
+                //my_pdf_report.setMargins(10, 10, 10, 10);
+                PdfWriter.getInstance(pdfDoc, new FileOutputStream(filePath));
+                pdfDoc.open();
+                //we have four columns in our table
+                PdfPTable tablePdf = new PdfPTable(kolom.length);
+
+                tablePdf.setWidths(new int[]{1, 1, 2});
+                //create a cell object
+                PdfPCell cell;
+
+                for (String kolom1 : kolom) {
+                    cell = new PdfPCell(new Phrase(kolom1));
+                    tablePdf.addCell(cell);
+                }
+
+                while (query_set.next()) {
+                    for (String kolom1 : kolom) {
+                        cell = new PdfPCell(new Phrase(query_set.getString(kolom1)));
+                        tablePdf.addCell(cell);
+                    }
+                }
+                /* Attach report table to PDF */
+                pdfDoc.add(tablePdf);
+                pdfDoc.close();
+
+                int result = JOptionPane.showConfirmDialog(null,
+                        "File created successfully. Do you want to open it?", "Open File", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    //Open the report
+                    File pdfFile = new File(filePath);
+                    if (pdfFile.exists()) {
+
+                        if (Desktop.isDesktopSupported()) {
+                            Desktop.getDesktop().open(pdfFile);
+                        } else {
+                            System.out.println("Awt Desktop is not supported!");
+                        }
+
+                    } else {
+                        System.out.println("File is not exists!");
+                    }
+                } else {
+
+                }
+
+                System.out.println("Done");
+
+                /* Close all DB related objects */
+            } catch (DocumentException | SQLException | IOException ex) {
+                Logger.getLogger(BarangF.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addCatBtn;
